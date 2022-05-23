@@ -28,7 +28,7 @@
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "async-promise-pool": "^1.0.6",
-    "bootstrap-icons": "^1.8.1",
+    "bootstrap-icons": "^1.8.2",
     "electron-packager": "^15.5.1",
     "ffmetadata": "^1.7.0",
     "luxon": "^2.4.0",
