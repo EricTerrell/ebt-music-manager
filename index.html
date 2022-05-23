@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+    <link href="common.css" rel="stylesheet" type="text/css">
+    <link href="index.css" rel="stylesheet" type="text/css">
+    <link href="file:///./resources/tabulator.css" rel="stylesheet">
+    <title>EBT Music Manager</title>
+  </head>
+  <body>
+    <div id="radio_buttons">
+      <input type="radio" id="radio_button_playlists" name="rbgroup" value="playlists" checked/>
+      <label for="radio_button_playlists">Playlists</label>
+
+      <input type="radio" id="radio_button_albums" name="rbgroup" value="albums"/>
+      <label for="radio_button_albums">Albums</label>
+
+      <input type="radio" id="radio_button_tracks" name="rbgroup" value="tracks"/>
+      <label for="radio_button_tracks">Tracks</label>
+
+      <span id="hierarchy-item-count"></span>
+    </div>
+
+    <div id="tables">
+      <div id="hierarchy-grid"></div>
+      <div id="hierarchy-grid-buttons">
+        <button id="save-playlists-edits" disabled>Save</button>
+        <button id="undo-playlists-edits" disabled>Undo</button>
+      </div>
+
+      <div id="currently-editing">
+        <span id="editing-header"></span>
+      </div>
+
+      <div id="tracks-grid-div">
+        <div id="tracks-grid"></div>
+        <div id="tracks-grid-buttons">
+          <button id="select-all-tracks" disabled>Select All Tracks</button>
+          <button id="unselect-all-tracks" disabled>Unselect All Tracks</button>
+          <button id="add-to-playlist" disabled>Add to Playlist</button>
+          <button id="reorder-tracks" disabled>Reorder Tracks</button>
+          <button id="save-tracks-edits" disabled>Save</button>
+          <button id="undo-tracks-edits" disabled>Undo</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="buttons">
+      <button id="scan">Scan</button>
+      <button id="sync-target-folder">Sync</button>
+      <button id="settings">Settings</button>
+    </div>
+
+    <!-- You can also require other files to run in this process -->
+    <script type="text/javascript" src='file:///./resources/luxon.min.js'></script>
+    <script type="text/javascript" src='file:///./resources/tabulator.js'></script>
+    <script src="src/index.js"></script>
+  </body>
+</html>

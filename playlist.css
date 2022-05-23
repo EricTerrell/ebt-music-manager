@@ -1,0 +1,35 @@
+#new-playlist {
+    width: 83em;
+    margin-top: 1em;
+    display: block;
+}
+
+.rb-label {
+    margin-bottom: 2em;
+}
+
+#new {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+#existing-playlists-grid {
+    margin-top: 1em;
+    width: 100%;
+    height: 15em;
+}
+
+#playlist-tracks-grid {
+    width: 100%;
+    height: calc(100vh - 33em);
+
+    margin-bottom: 0.75em
+}
+
+#playlist-tracks-label {
+    margin-bottom: 0.75em;
+}
+
+#playlist-tracks-grid-label {
+    margin-bottom: 0.75em
+}

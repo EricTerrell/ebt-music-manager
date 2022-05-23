@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="common.css" rel="stylesheet" type="text/css">
+    <link href="settings_ui.css" rel="stylesheet" type="text/css">
+    <title>Settings</title>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>Setting</th>
+        <th>Value</th>
+        <th>Description</th>
+        <th>Change</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Source Folder</td>
+        <td><span id="source-folder-value"></span></td>
+        <td>Folder containing original copies of playlists and full-fidelity audio files</td>
+        <td>
+            <button id="source-folder">Change</button>
+        </td>
+    </tr>
+    <tr>
+        <td>Target Folder</td>
+        <td><span id="target-folder-value"></span></td>
+        <td>Folder that will be filled with playlists and transcoded audio files</td>
+        <td>
+            <button id="target-folder">Change</button>
+        </td>
+    </tr>
+    <tr>
+        <td>Path to ffmpeg</td>
+        <td><span id="ffmpeg-value"></span></td>
+        <td>This program uses the <a href="https://ffmpeg.org/" class="link">ffmpeg</a> app for transcoding and metadata editing. You must install ffmpeg and specify the path to the ffmpeg.exe file.</td>
+        <td>
+            <button id="ffmpeg-path">Change</button>
+        </td>
+    </tr>
+    <tr>
+        <td>Bit Rate</td>
+        <td>
+            <select id="bit-rate">
+                <option value='96k'>Fair Quality: 96k</option>
+                <option value='128k'>Average Quality: 128k</option>
+                <option value='256k'>Near CD Quality: 256k</option>
+                <option value='320k'>Highest Quality: 320k</option>
+            </select>
+        </td>
+        <td>Determines quality of transcoded audio files. Larger is better.</td>
+    </tr>
+    <tr>
+        <td>Concurrency</td>
+        <td>
+            <select id="concurrency">
+                <option value='1'>1 (slowest)</option>
+                <option value='2'>2</option>
+                <option value='4'>4</option>
+                <option value='8'>8</option>
+                <option value='12'>12</option>
+                <option value='16'>16 (fastest)</option>
+            </select>
+        </td>
+        <td>Specifies how many transcoding operations will be done in parallel. Larger values tend to result in faster transcoding, depending on your CPU and disc speed.</td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="buttons">
+    <button id="ok">OK</button>
+    <button id="cancel">Cancel</button>
+</div>
+</body>
+<script src="src/settings_ui.js"></script>
+</html>

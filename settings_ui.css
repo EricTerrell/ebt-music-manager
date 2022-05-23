@@ -1,0 +1,16 @@
+table, th, td {
+    border: 1px black solid;
+}
+
+input {
+    font-family: Lucida Console, Courier, monospace;
+    font-size: large;
+}
+
+button {
+    margin-top: 2em;
+}
+
+th {
+    background-color: lightgrey;
+}

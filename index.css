@@ -1,0 +1,32 @@
+#hierarchy-grid {
+    margin-top: 1em;
+    width: 100%;
+    height: 20em;
+}
+
+#tracks-grid {
+    width: 100%;
+    height: calc(100vh - 33.5em);
+}
+
+#buttons {
+    margin-top: 1em;
+}
+
+#editing-header {
+    margin-top: 1em;
+    margin-bottom: 0.25em;
+}
+
+#hierarchy-grid-buttons {
+    margin-top: 0.3em;
+}
+
+#hierarchy-item-count {
+    margin-left: 2em;
+}
+
+#currently-editing {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+}

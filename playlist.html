@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="common.css" rel="stylesheet" type="text/css">
+    <link href="playlist.css" rel="stylesheet" type="text/css">
+    <link href="file:///./resources/tabulator.css" rel="stylesheet">
+    <title>Add Tracks to Playlist</title>
+</head>
+
+<body>
+
+<p>Add Selected Tracks:</p>
+
+<div id="existing">
+    <input type="radio" id="radio-existing" name="radio" class="radio-button" />
+    <span id="to-existing-playlist" class="rb-label">to EXISTING playlist:</span>
+    <div id="existing-playlists-grid"></div>
+</div>
+
+<div id="new">
+    <input type="radio" id="radio-new" name="radio" class="radio-button" />
+    <span class="rb-label">to NEW playlist:</span>
+    <input id="new-playlist" type="text"/>
+</div>
+
+<div id="playlist-tracks-grid-label">
+    <span id="playlist-tracks-label">Playlist Tracks:</span>
+    <span id="playlist-tracks-item-count"></span>
+</div>
+
+<div id="playlist-tracks-grid"></div>
+
+<div>
+    <button id="ok" disabled>OK</button>
+    <button id="cancel">Cancel</button>
+</div>
+
+</body>
+<script src="src/playlist.js"></script>
+</html>
