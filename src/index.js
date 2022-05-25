@@ -408,7 +408,7 @@ function wireUpUI() {
         editingHeader.textContent = trackArray.length > 0 ? editingMessage : StringLiterals.EMPTY_STRING;
 
         tracksCount.innerHTML = trackArray.length > 0 ?
-            `(${trackArray.length.toLocaleString()} tracks)` : StringLiterals.EMPTY_STRING;
+            `(${trackArray.length.toLocaleString()})` : StringLiterals.EMPTY_STRING;
 
         if (radioButtonTracks.checked) {
             itemCount.innerHTML = tracksCount.innerHTML;
