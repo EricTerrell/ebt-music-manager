@@ -106,6 +106,7 @@ function wireUpUI() {
     });
 
     const itemCount = document.querySelector('#hierarchy-item-count');
+    const tracksCount = document.querySelector('#tracks-count');
 
     const settingsButton = document.querySelector('#settings');
 
@@ -406,8 +407,12 @@ function wireUpUI() {
 
         editingHeader.textContent = trackArray.length > 0 ? editingMessage : StringLiterals.EMPTY_STRING;
 
-        itemCount.innerHTML = trackArray.length > 0 ?
+        tracksCount.innerHTML = trackArray.length > 0 ?
             `(${trackArray.length.toLocaleString()} tracks)` : StringLiterals.EMPTY_STRING;
+
+        if (radioButtonTracks.checked) {
+            itemCount.innerHTML = tracksCount.innerHTML;
+        }
 
         selectAllTracksButton.disabled =
             tableData.length === 0 || getSelectedItemType() === StringLiterals.ITEM_TYPE_TRACKS;
