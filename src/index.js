@@ -505,12 +505,14 @@ function wireUpUI() {
 
             const newPlaylistPath = path.join(path.dirname(oldPlaylistPath), newPlaylistName);
 
+            console.log(`index.js: savePlaylistChanges oldPlaylistPath: "${oldPlaylistPath}" newPlaylistPath: "${newPlaylistPath}"`);
+
             try {
                 fs.renameSync(oldPlaylistPath, newPlaylistPath);
 
                 ScanForMetadata.renamePlaylist(oldPlaylistPath, newPlaylistPath, metadata);
 
-                if (oldRowData !== undefined) {
+                if (oldRowData !== undefined && oldRowData.name === oldPlaylistPath) {
                     oldRowData.name = newPlaylistPath;
                 }
             } catch (err) {
