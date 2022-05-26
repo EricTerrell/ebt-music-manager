@@ -1,21 +1,10 @@
 #license_terms {
     width: 100%;
-    height: calc(100vh - 11em);
+    height: calc(100vh - 9em);
 
     overflow-y: auto;
 }
 
-.action-button {
-    width: 12em;
-}
-
-.button {
-    margin: 0 0 0 .5em;
-    font-size: .8em;
-    line-height: 1em;
-    padding: .6em 1em
-}
-
 #ok {
-    margin-top: 2em;
+    margin-top: 1em;
 }

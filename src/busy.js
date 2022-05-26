@@ -22,18 +22,16 @@ const {ipcRenderer} = require('electron');
 
 const StringLiterals = require('./lib/stringLiterals');
 
-const messageDiv = document.querySelector('#message');
-const percentDiv = document.querySelector('#percent');
 const okButton = document.querySelector('#ok');
 const cancelButton = document.querySelector('#cancel');
 
 ipcRenderer.on(StringLiterals.PROGRESS_MESSAGE, (event, data) => {
     if (data.message !== undefined) {
-        messageDiv.innerHTML = data.message;
+        document.querySelector('#message').innerHTML = data.message;
     }
 
     if (data.percent !== undefined) {
-        percentDiv.innerHTML = `${data.percent.toFixed(2)}&percnt; complete`;
+        document.querySelector('#percent').innerHTML = `${data.percent.toFixed(2)}&percnt; complete`;
     }
 
     if (data.completed === true) {

@@ -296,11 +296,11 @@ function wireUpUI() {
             'columns': columns
         });
 
-        hierarchyTable.on('rowClick', function(e, row) {
+        hierarchyTable.on(StringLiterals.ROW_CLICK, function(e, row) {
             loadTable(row.getData());
         });
 
-        hierarchyTable.on('tableBuilt', function() {
+        hierarchyTable.on(StringLiterals.TABLE_BUILT, function() {
             if (selectedItemType !== StringLiterals.ITEM_TYPE_TRACKS) {
                 itemCount.innerHTML = `(${tableData.length.toLocaleString()} items)`;
             }
@@ -384,13 +384,13 @@ function wireUpUI() {
                 'columns': tableColumns
             });
 
-            tracksTable.on('rowMoved', function() {
+            tracksTable.on(StringLiterals.ROW_MOVED, function() {
                 if (canMoveRows()) {
                     reorderTracksButton.disabled = false;
                 }
             });
 
-            tracksTable.on('tableBuilt', () => {
+            tracksTable.on(StringLiterals.TABLE_BUILT, () => {
                 tracksTableBuilt = true;
             });
         } else {
@@ -830,7 +830,7 @@ function wireUpUI() {
         // https://github.com/electron/remote/pull/72#issuecomment-924933800
         remote.require("@electron/remote/main").enable(licenseTermsWindow.webContents)
 
-        licenseTermsWindow.on('closed', () => {
+        licenseTermsWindow.on(StringLiterals.CLOSED, () => {
             checkSettings();
         })
     } else {

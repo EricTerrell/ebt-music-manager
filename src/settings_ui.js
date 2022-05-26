@@ -102,6 +102,7 @@ function wireUpUI() {
 
     sourceFolderButton.addEventListener(StringLiterals.CLICK, async () => {
         dialog.showOpenDialog(remote.getCurrentWindow(), {
+            title: 'Specify Source Folder',
             properties: Constants.OPEN_FOLDER_PROPERTIES
         }).then(result => {
             if (!result.canceled) {
@@ -114,6 +115,7 @@ function wireUpUI() {
 
     targetFolderButton.addEventListener(StringLiterals.CLICK, async () => {
         dialog.showOpenDialog(remote.getCurrentWindow(), {
+            title: 'Specify Target Folder',
             properties: Constants.OPEN_FOLDER_PROPERTIES
         }).then(result => {
             if (!result.canceled) {
@@ -126,6 +128,7 @@ function wireUpUI() {
 
     ffmpegPathButton.addEventListener(StringLiterals.CLICK, () => {
         dialog.showOpenDialog(remote.getCurrentWindow(), {
+            title: 'Specify ffmpeg Path',
             properties: Constants.OPEN_FILE_PROPERTIES
         }).then(result => {
             if (!result.canceled) {
