@@ -70,7 +70,7 @@ const radioButtonAlbums = document.querySelector('#radio_button_albums');
 const radioButtonTracks = document.querySelector('#radio_button_tracks');
 
 const reorderTracksButton = document.querySelector('#reorder-tracks');
-
+const deleteTracksButton = document.querySelector('#delete-tracks');
 const selectAllTracksButton = document.querySelector('#select-all-tracks');
 const unselectAllTracksButton = document.querySelector('#unselect-all-tracks');
 
@@ -138,6 +138,29 @@ function wireUpUI() {
         });
     });
 
+    deleteTracksButton.addEventListener(StringLiterals.CLICK, async () => {
+        const options = {
+            type: StringLiterals.DIALOG_QUESTION,
+            title: 'Delete Tracks',
+            message: `Delete selected tracks?`,
+            buttons: Constants.YES_NO_CANCEL,
+            defaultId: 0,
+            cancelId: 2,
+            icon: './resources/question_mark.png'
+        };
+
+        const selectedTracks = tracksTable.searchData('selected', '=', true);
+
+        dialog.showMessageBox(remote.getCurrentWindow(), options)
+            .then(response => {
+                if (response.response === 0) {
+                    deleteSelectedTracks(selectedTracks);
+
+                    refresh(getSelectedHierarchyRowData(), true, StringLiterals.UPDATING_DISPLAY);
+                }
+            });
+    });
+
     radioButtonPlaylists.addEventListener(StringLiterals.CLICK, () => {
         updateTables();
     });
@@ -180,6 +203,7 @@ function wireUpUI() {
                 saveTracksEditsButton.disabled = true;
                 undoTracksEditsButton.disabled = true;
                 reorderTracksButton.disabled = true;
+                deleteTracksButton.disabled = true;
             }, reason => {
                 finish();
 
@@ -329,13 +353,13 @@ function wireUpUI() {
 
         addToPlaylistButton.disabled = true;
         reorderTracksButton.disabled = true;
+        deleteTracksButton.disabled = true;
 
         let trackArray = [];
 
         let editingMessage = StringLiterals.EMPTY_STRING;
 
-        const tableColumns = DataTableUtils.getTracksTableColumns(createContextMenu, deleteTrack, cellEdited,
-            printIconDelete);
+        const tableColumns = DataTableUtils.getTracksTableColumns(createContextMenu, cellEdited);
 
         if (rowData === undefined) {
             editingMessage = StringLiterals.EMPTY_STRING;
@@ -535,7 +559,10 @@ function wireUpUI() {
             rowCount++;
         }
 
-        addToPlaylistButton.disabled = selectedCount === 0;
+        const zeroItemsSelected = selectedCount === 0;
+
+        addToPlaylistButton.disabled = zeroItemsSelected;
+        deleteTracksButton.disabled = zeroItemsSelected;
 
         const selectedItemType = getSelectedItemType();
 
@@ -710,35 +737,6 @@ function wireUpUI() {
             });
     }
 
-    function deleteTrack(e, cell) {
-        const trackPath = cell.getRow().getData().name;
-        const trackName = path.basename(trackPath);
-        const trackTitle = cell.getRow().getData().title;
-
-        const options = {
-            type: StringLiterals.DIALOG_QUESTION,
-            title: 'Delete Track',
-            message: `Delete Track "${trackName}" ("${trackTitle}")?`,
-            buttons: Constants.YES_NO_CANCEL,
-            defaultId: 0,
-            cancelId: 2,
-            icon: './resources/question_mark.png'
-        };
-
-        dialog.showMessageBox(remote.getCurrentWindow(), options)
-            .then(response => {
-                if (response.response === 0) {
-                    try {
-                        DeleteUtils.deleteTrack(trackPath, metadata);
-                    } catch (err) {
-                        ErrorHandler.displayError(err);
-                    }
-
-                    refresh(getSelectedHierarchyRowData(), true, StringLiterals.UPDATING_DISPLAY);
-                }
-            });
-    }
-
     function reorderTracks() {
         let sequenceNumber = 1;
 
@@ -875,5 +873,18 @@ function wireUpUI() {
 
     function printIconDelete() {
         return "<image src='file:///./resources/trash.svg'/>";
+    }
+
+    function deleteSelectedTracks(selectedTracks) {
+        console.log(`selectedTracks: ${JSON.stringify(selectedTracks)}`);
+
+        Object.entries(selectedTracks)
+            .forEach(([, value]) => {
+                try {
+                    DeleteUtils.deleteTrack(value.name, metadata);
+                } catch(err) {
+                    ErrorHandler.displayError(err);
+                }
+            });
     }
 }

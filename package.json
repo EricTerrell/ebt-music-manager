@@ -1,11 +1,11 @@
 {
   "name": "ebt-music-manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Edit audio file metadata and transcode",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "npm run build-windows && npm run build-linux",
+    "build": "npm run build-windows",
     "build-windows": "electron-packager . --icon=resources/icon.ico --out ../ebt-music-manager-build --overwrite --platform=win32 --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg",
     "build-linux": "electron-packager . --icon=resources/icon.png --extra-resource=resources/icon.png --out ../ebt-music-manager-build --overwrite --platform=linux --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg"
   },
@@ -21,19 +21,19 @@
   "devDependencies": {
     "nyc": "^15.1.0",
     "chai": "^4.3.6",
-    "mocha": "^9.2.2",
-    "sinon": "^13.0.1",
-    "electron": "^18.2.0"
+    "mocha": "^10.0.0",
+    "sinon": "^14.0.0",
+    "electron": "^19.0.1"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "async-promise-pool": "^1.0.6",
-    "bootstrap-icons": "^1.8.1",
+    "bootstrap-icons": "^1.8.3",
     "electron-packager": "^15.5.1",
     "ffmetadata": "^1.7.0",
     "luxon": "^2.4.0",
     "music-metadata": "^7.12.3",
     "pretty-data": "^0.40.0",
-    "tabulator-tables": "^5.2.4"
+    "tabulator-tables": "^5.2.6"
   }
 }

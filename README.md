@@ -1,4 +1,4 @@
-# EBT Music Manager for Windows and Linux
+# EBT Music Manager
 
 EBT Music Manager allows you to edit playlists and audio file metadata. EBT Music Manager allows you to sync
 your music to a folder, which can be copied to mobile devices. The sync process:
@@ -7,7 +7,7 @@ your music to a folder, which can be copied to mobile devices. The sync process:
 2) Copies .mp3 files to the target folder
 3) Converts .flac files to .mp3 format, and copies the .mp3 files to the target folder
 
-EBT Music Manager runs on Windows 10, and Linux. EBT Music Manager is open source.
+EBT Music Manager runs on 64-bit Windows. EBT Music Manager is open source.
 
 EBT Music Manager is built on the [`Electron`](https://github.com/electron/electron) framework.
 
@@ -43,6 +43,26 @@ npm start
 ```
 
 Once EBT Music Manager is running, click Settings. Specify the Source and Target folders, the path to ffmpeg, and the desired bit rate and concurrency.
+
+# Building
+
+To build a version of EBT Music Manager suitable for distribution:
+
+```
+npm run build
+```
+
+# Version History
+
+| Version | Notes                                                                   |
+|---------|-------------------------------------------------------------------------|
+| 1.02    | User can now delete *selected* tracks. Updated dependencies.            |
+| 1.01    | There is now a separate count of items for playlists/albums and tracks. |
+| 1.00    | Initial version                                                         |
+
+# Linux and OSX Versions
+
+There are no barriers to creating Linux and OSX versions. If you would like to help test a Linux or OSX version, contact me at EBTMusicManager@EricBT.com.
 
 # License
 
