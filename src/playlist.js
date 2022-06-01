@@ -98,7 +98,7 @@ function wireUpUI() {
         const playlistTracks = DataTableUtils.getRowsInDisplayedOrder(playlistTracksGrid)
             .map(row => row.getData());
 
-        PlaylistCreator.write(newPlaylistPath, playlistTracks);
+        newPlaylistPath = PlaylistCreator.write(newPlaylistPath, playlistTracks);
 
         // Send cancel notification to main process.
         ipcRenderer.invoke(StringLiterals.UPSERT_PLAYLIST, newPlaylistPath)
