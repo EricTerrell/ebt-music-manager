@@ -54,11 +54,12 @@ npm run build
 
 # Version History
 
-| Version | Notes                                                                   |
-|---------|-------------------------------------------------------------------------|
-| 1.02    | User can now delete *selected* tracks. Updated dependencies.            |
-| 1.01    | There is now a separate count of items for playlists/albums and tracks. |
-| 1.00    | Initial version                                                         |
+| Version | Notes                                                                                                                                                                                                                           |
+|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.03    | Bug Fix: In previous versions, if user entered invalid filename characters in playlist dialog, app would attempt to create playlist with a filename containing invalid characters. Invalid characters are now converted to '#'. |
+| 1.02    | User can now delete *selected* tracks. Updated dependencies.                                                                                                                                                                    |
+| 1.01    | There is now a separate count of items for playlists/albums and tracks.                                                                                                                                                         |
+| 1.00    | Initial version                                                                                                                                                                                                                 |
 
 # Linux and OSX Versions
 
