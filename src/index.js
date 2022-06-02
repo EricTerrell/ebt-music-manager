@@ -40,6 +40,7 @@ const ErrorHandler = require('./lib/errorHandler');
 const PlaylistCreator = require('./lib/playlistCreator');
 const Files = require('./lib/files');
 const ProgressMessage = require('./lib/progressMessage');
+const Filter = require('./lib/filter');
 
 const scanButton = document.querySelector('#scan');
 
@@ -77,6 +78,25 @@ const unselectAllTracksButton = document.querySelector('#unselect-all-tracks');
 wireUpUI();
 
 function wireUpUI() {
+    const filterCheckbox = document.querySelector('#filter-checkbox');
+    const filterCaseInsensitive = document.querySelector('#filter-case-insensitive');
+    const filterFieldName = document.querySelector('#filter-field-name');
+    const filterOperation = document.querySelector('#filter-operation');
+    const filterText = document.querySelector('#filter-text');
+
+    // When filter settings are changed, update UI asynchronously (so that user's typing is not disrupted).
+    const update = () => {
+        setTimeout(async () => {
+            updateUIForFilterSettings();
+        });
+    };
+
+    filterCheckbox.addEventListener(StringLiterals.CHANGE, update);
+    filterCaseInsensitive.addEventListener(StringLiterals.CHANGE, update);
+    filterText.addEventListener(StringLiterals.KEYDOWN, update);
+    filterFieldName.addEventListener(StringLiterals.CHANGE, update);
+    filterOperation.addEventListener(StringLiterals.CHANGE, update);
+
     ipcRenderer.on(StringLiterals.NOTIFY_SETTINGS_CHANGED, () => {
         console.info('index.js: settings changed');
 
@@ -293,7 +313,7 @@ function wireUpUI() {
         let tableData = [];
 
         if (metadata !== undefined) {
-            tableData = DataTableUtils.toTableData(metadata, selectedItemType);
+            tableData = DataTableUtils.toTableData(metadata, selectedItemType, getFilterSettings());
         }
 
         const editor = selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ?
@@ -368,7 +388,7 @@ function wireUpUI() {
             switch (rowData.type) {
                 case StringLiterals.ITEM_TYPE_ALBUMS: {
                     editingMessage = `Editing Album "${rowData.name}":`;
-                    trackArray = loadTracks((metadata) => metadata.common.album === rowData.name);
+                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, getFilterSettings());
                 }
                     break;
 
@@ -386,7 +406,7 @@ function wireUpUI() {
                 case StringLiterals.TYPE_ALL_TRACKS: {
                     editingMessage = `Editing All Tracks:`;
 
-                    trackArray = loadTracks(() => true);
+                    trackArray = loadTracks(() => true, getFilterSettings());
                 }
                     break;
             }
@@ -483,15 +503,8 @@ function wireUpUI() {
             }];
     }
 
-    function loadTracks(filter) {
-        return Object.entries(metadata.audioFilePathToMetadata)
-            .filter(([, value]) => filter(value))
-            .map(function ([audioFilePath, metadata]) {
-                return {
-                    audioFilePath,
-                    metadata
-                };
-            });
+    function loadTracks(filter, filterSettings) {
+        return Filter.filterTracks(metadata, filterSettings).filter(filter);
     }
 
     function cellEdited(cell) {
@@ -886,5 +899,19 @@ function wireUpUI() {
                     ErrorHandler.displayError(err);
                 }
             });
+    }
+
+    function getFilterSettings() {
+        return {
+            filter: filterCheckbox.checked,
+            fieldName: filterFieldName.options[filterFieldName.selectedIndex].value,
+            operation: filterOperation.options[filterOperation.selectedIndex].value,
+            text: filterText.value,
+            ignoreCase: filterCaseInsensitive.checked
+        };
+    }
+
+    function updateUIForFilterSettings() {
+        updateTables(getSelectedItemType());
     }
 }

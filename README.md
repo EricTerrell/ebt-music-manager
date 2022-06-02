@@ -31,7 +31,7 @@ EBT Music Manager
 
 # Quick Start
 
-First, install [`ffmpeg`](https://ffmpeg.org/)
+First, install [`ffmpeg`](https://ffmpeg.org/) version 5.xx.
 
 To run EBT Music Manager:
 
@@ -56,6 +56,7 @@ npm run build
 
 | Version | Notes                                                                                                                                                                                                                           |
 |---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.04    | Added filtering of playlists, albums, and tracks.                                                                                                                                                                               |
 | 1.03    | Bug Fix: In previous versions, if user entered invalid filename characters in playlist dialog, app would attempt to create playlist with a filename containing invalid characters. Invalid characters are now converted to '#'. |
 | 1.02    | User can now delete *selected* tracks. Updated dependencies.                                                                                                                                                                    |
 | 1.01    | There is now a separate count of items for playlists/albums and tracks.                                                                                                                                                         |

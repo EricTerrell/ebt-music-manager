@@ -35,3 +35,11 @@
 #save-tracks-edits {
     margin-left: 1em;
 }
+
+#filter-ui {
+    margin-left: 2em;
+}
+
+#filter-text {
+    width: calc(100vw - 61em);
+}
