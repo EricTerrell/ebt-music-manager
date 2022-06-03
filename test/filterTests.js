@@ -19,29 +19,32 @@
 */
 
 const expect = require('chai').expect;
+const path = require('path');
 
 const Filter = require('../lib/filter');
 const ScanForMetadata = require('../lib/scanForMetadata');
 
 describe("Filter tests", function () {
-    const metadata = ScanForMetadata.readMetadata('C:\\temp');
+    const metadata = ScanForMetadata.readMetadata(path.join(__dirname, './resources'));
 
     it('should filter playlists', async function () {
         let filterSettings = {
+            filter: true,
             fieldName: 'playlistAlbumName',
             operation: 'contains',
-            text: 'Bach',
+            text: 'Wagner',
             ignoreCase: false
         };
 
         let results = Filter.filterPlaylists(metadata, filterSettings);
 
-        expect(results.length).to.equal(56);
+        expect(results.length).to.equal(1);
 
         filterSettings = {
+            filter: true,
             fieldName: 'playlistAlbumName',
             operation: 'equals',
-            text: 'J.S. Bach - Art of Fugue (BWV 1080) (Leonhardt)',
+            text: '10,000 Maniacs - Our Time In Eden',
             ignoreCase: false
         };
 
@@ -52,64 +55,69 @@ describe("Filter tests", function () {
 
     it('should filter by genre', async function () {
         const filterSettings = {
+            filter: true,
             fieldName: 'genre',
             operation: 'equals',
-            text: 'Opera',
+            text: 'Rock',
             ignoreCase: false
         };
 
         const results = Filter.filterPlaylists(metadata, filterSettings);
 
-        expect(results.length).to.equal(257);
+        expect(results.length).to.equal(1);
     });
 
     it('should filter albums', async function() {
         let filterSettings = {
+            filter: true,
             fieldName: 'playlistAlbumName',
             operation: 'contains',
-            text: 'Bach',
+            text: 'Maniacs',
             ignoreCase: false
         };
 
         let results = Filter.filterAlbums(metadata, filterSettings);
 
-        expect(results.length).to.equal(73);
+        expect(results.length).to.equal(2);
     });
 
     it('should filter tracks', async function () {
         let filterSettings = {
+            filter: true,
             fieldName: 'playlistAlbumName',
             operation: 'contains',
-            text: 'Bach',
+            text: 'Eden',
             ignoreCase: false
         };
 
         let results = Filter.filterTracks(metadata, filterSettings);
 
-        expect(results.length).to.equal(1165);
+        expect(results.length).to.equal(13);
     });
 
     it('should filter with >=', async function() {
         let filterSettings = {
+            filter: true,
             fieldName: 'title',
             operation: 'ge',
-            text: 'Wagner',
+            text: '10,000',
             ignoreCase: true
         };
 
         let results = Filter.filterTracks(metadata, filterSettings);
 
-        expect(results.length).to.equal(1255);
+        expect(results.length).to.equal(65);
 
         filterSettings = {
+            filter: true,
             fieldName: 'title',
             operation: 'ge',
-            text: 'Wagner',
+            text: 'Wagner - Das Rheingold',
             ignoreCase: false
         };
 
         results = Filter.filterTracks(metadata, filterSettings);
 
-        expect(results.length).to.equal(1336);
+        expect(results.length).to.equal(1);
     });
 });
