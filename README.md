@@ -19,11 +19,13 @@ EBT Music Manager
 
 # Screenshots
 
-![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/main.png "EBT Music Manager Screenshot, Main Window")
+![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/main.png "Main Window")
 
-![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/settings.png "EBT Music Manager Screenshot, Settings")
+![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/settings.png "Settings")
 
-![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/add-tracks-to-playlist.png "EBT Music Manager Screenshot, Adding Tracks to Playlist")
+![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/add-tracks-to-playlist.png "Adding Tracks to Playlist")
+
+![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/filter.png "Filtering")
 
 # Links
 

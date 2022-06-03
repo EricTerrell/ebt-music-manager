@@ -20,7 +20,7 @@
 
 const {shell} = require("electron");
 
-const {config} = require('./package.json');
+const package = require('./package.json');
 
 const StringLiterals = require('./lib/stringLiterals');
 const AppInfo = require('./lib/appInfo');
@@ -33,9 +33,9 @@ function wireUpUI() {
     const licenseTermsButton = document.querySelector('#license_terms');
     const closeButton = document.querySelector('#close');
 
-    document.querySelector('#github').setAttribute(StringLiterals.HREF, config.githubUrl);
-    document.querySelector('#website_link').innerText = config.websiteUrl;
-    document.querySelector('#website_link').setAttribute(StringLiterals.HREF, config.websiteUrl);
+    document.querySelector('#github').setAttribute(StringLiterals.HREF, package.repository.url);
+    document.querySelector('#website_link').innerText = package.config.websiteUrl;
+    document.querySelector('#website_link').setAttribute(StringLiterals.HREF, package.config.websiteUrl);
 
     document.querySelector('#app_and_version').innerText = `${StringLiterals.APP_NAME} version ${AppInfo.getInfo.version}`;
 

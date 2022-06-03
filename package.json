@@ -9,8 +9,12 @@
     "build-windows": "electron-packager . --icon=resources/icon.ico --out ../ebt-music-manager-build --overwrite --platform=win32 --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg",
     "build-linux": "electron-packager . --icon=resources/icon.png --extra-resource=resources/icon.png --out ../ebt-music-manager-build --overwrite --platform=linux --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EricTerrell/ebt-music-manager"
+  },
+  "license": "GPL-3.0-only",
   "config": {
-    "githubUrl": "https://github.com/EricTerrell/ebt-music-manager",
     "websiteUrl": "https://www.EricBT.com",
     "onLineHelpUrl": "https://www.ericbt.com/ebt-music-manager/help",
     "submitFeedback": "mailto:EBTMusicManager@EricBT.com?subject=EBT Music Manager Feedback",
@@ -23,7 +27,7 @@
     "chai": "^4.3.6",
     "mocha": "^10.0.0",
     "sinon": "^14.0.0",
-    "electron": "^19.0.1"
+    "electron": "^19.0.3"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
