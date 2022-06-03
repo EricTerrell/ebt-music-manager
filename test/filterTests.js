@@ -120,4 +120,18 @@ describe("Filter tests", function () {
 
         expect(results.length).to.equal(1);
     });
+
+    it('should filter using modified field', async function() {
+        const filterSettings = {
+            filter: true,
+            fieldName: 'modified',
+            operation: 'contains',
+            text: 'Mar 21, 2015',
+            ignoreCase: true
+        };
+
+        const results = Filter.filterTracks(metadata, filterSettings);
+
+        expect(results.length).to.equal(38);
+    });
 });
