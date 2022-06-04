@@ -134,4 +134,18 @@ describe("Filter tests", function () {
 
         expect(results.length).to.equal(38);
     });
+
+    it('should filter using filePath', async function() {
+        const filterSettings = {
+            filter: true,
+            fieldName: 'filePath',
+            operation: 'contains',
+            text: '01.flac',
+            ignoreCase: true
+        };
+
+        const results = Filter.filterTracks(metadata, filterSettings);
+
+        expect(results.length).to.equal(4);
+    });
 });

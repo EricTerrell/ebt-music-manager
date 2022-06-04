@@ -18,9 +18,9 @@
     along with EBT Music Manager.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-const {shell} = require("electron");
+const {shell, ipcRenderer} = require("electron");
 
-const package = require('./package.json');
+const pkg = require('./package.json');
 
 const StringLiterals = require('./lib/stringLiterals');
 const AppInfo = require('./lib/appInfo');
@@ -33,9 +33,9 @@ function wireUpUI() {
     const licenseTermsButton = document.querySelector('#license_terms');
     const closeButton = document.querySelector('#close');
 
-    document.querySelector('#github').setAttribute(StringLiterals.HREF, package.repository.url);
-    document.querySelector('#website_link').innerText = package.config.websiteUrl;
-    document.querySelector('#website_link').setAttribute(StringLiterals.HREF, package.config.websiteUrl);
+    document.querySelector('#github').setAttribute(StringLiterals.HREF, pkg.repository.url);
+    document.querySelector('#website_link').innerText = pkg.config.websiteUrl;
+    document.querySelector('#website_link').setAttribute(StringLiterals.HREF, pkg.config.websiteUrl);
 
     document.querySelector('#app_and_version').innerText = `${StringLiterals.APP_NAME} version ${AppInfo.getInfo.version}`;
 
@@ -52,5 +52,9 @@ function wireUpUI() {
 
     document.querySelector('#feedback').addEventListener(StringLiterals.CLICK, () => {
         shell.openExternal(config.submitFeedback).then();
+    });
+
+    document.querySelector('#check_for_updates').addEventListener(StringLiterals.CLICK, () => {
+        ipcRenderer.invoke(StringLiterals.CHECK_FOR_UPDATES).then();
     });
 }
