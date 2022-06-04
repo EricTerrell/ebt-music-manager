@@ -18,25 +18,18 @@
     along with EBT Music Manager.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = class Constants {
-    static get READ_WRITE_FILE_OPTIONS() { return { 'encoding': 'utf8' }; }
+const {checkVersion} = require('../lib/checkVersion');
+const StringLiterals = require('../lib/stringLiterals');
 
-    static get SEQUENCE_EDITOR_PARAMS() {
-        return {
-            min: 1
-        }
-    }
+try {
+    checkVersion(noop, notEquals, noop);
+} catch (err) {
+    console.error(`checkVersion: ${err}`);
+}
 
-    static get YES_NO_CANCEL() { return ['Yes', 'No', 'Cancel']; }
-    static get OK() { return ['OK']; }
+function noop() {
+}
 
-    static get OPEN_FOLDER_PROPERTIES() {
-        return ['openDirectory'];
-    }
-
-    static get OPEN_FILE_PROPERTIES() {
-        return ['openFile'];
-    }
-
-    static get VERSION_CHECK_INTERVAL_DAYS() { return 7; }
-};
+function notEquals() {
+    console.log(`${StringLiterals.NOT_EQUAL}`);
+}

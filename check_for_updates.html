@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:width="http://www.w3.org/1999/xhtml">
+<head>
+    <link href="common.css" rel="stylesheet" type="text/css">
+    <link href="check_for_updates.css" rel="stylesheet" type="text/css">
+    <meta charset="UTF-8">
+    <title id="title">Check for Updates</title>
+</head>
+<body>
+    <div>
+        <p id="app_and_version"></p>
+        <p>&#169; Copyright 2022, Eric Bergman-Terrell</p>
+        <a id="website_link" class="link"></a>
+    </div>
+
+    <div id="current_version">
+        <p>You are running the most recent version of EBT Music Manager.</p>
+    </div>
+
+    <div id="obsolete_version">
+        <p>There is a more recent version of EBT Music Manager available. Click the Download button to download it.</p>
+    </div>
+
+    <div id="action_buttons">
+            <button id="download" class="action-button button" disabled>Download</button>
+            <button id="close" class="action-button button">Close</button>
+    </div>
+
+    <script src="src/check_for_updates.js"></script>
+</body>
+</html>

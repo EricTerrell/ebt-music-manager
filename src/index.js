@@ -41,6 +41,7 @@ const PlaylistCreator = require('./lib/playlistCreator');
 const Files = require('./lib/files');
 const ProgressMessage = require('./lib/progressMessage');
 const Filter = require('./lib/filter');
+const VersionChecker = require('./lib/versionChecker');
 
 const scanButton = document.querySelector('#scan');
 
@@ -827,6 +828,12 @@ function wireUpUI() {
         }
     }
 
+    function checkVersion() {
+        if (Files.getSettings().checkForUpdates && needToCheckVersion()) {
+            VersionChecker.checkVersion();
+        }
+    }
+
     function disableSaveAndUndoButtons() {
         saveTracksEditsButton.disabled = true;
         undoTracksEditsButton.disabled = true;
@@ -845,9 +852,11 @@ function wireUpUI() {
 
         licenseTermsWindow.on(StringLiterals.CLOSED, () => {
             checkSettings();
+            checkVersion();
         })
     } else {
         checkSettings();
+        checkVersion();
     }
 
     function scan() {
@@ -913,5 +922,26 @@ function wireUpUI() {
 
     function updateUIForFilterSettings() {
         updateTables(getSelectedItemType());
+    }
+
+    function needToCheckVersion() {
+        const settings = Files.getSettings();
+
+        console.info(`needToCheckVersion: settings: ${JSON.stringify(settings)}`);
+
+        if (settings.lastVersionCheck === undefined) {
+            return true;
+        }
+
+        const lastVersionCheck = new Date(settings.lastVersionCheck).getTime();
+        const now = new Date().getTime();
+
+        const elapsedTimeDays = (now - lastVersionCheck) / (1000 * 60 * 60 * 24);
+
+        const result = elapsedTimeDays >= Constants.VERSION_CHECK_INTERVAL_DAYS;
+
+        console.info(`needToCheckVersion: lastVersionCheck: ${lastVersionCheck} now: ${now} elapsedTimeDays: ${elapsedTimeDays} result: ${result}`);
+
+        return result;
     }
 }

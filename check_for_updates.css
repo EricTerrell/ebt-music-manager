@@ -1,0 +1,12 @@
+#close {
+    margin-left: 3em;
+}
+
+* {
+    -webkit-user-select:none;
+}
+
+#current_version,
+#obsolete_version {
+    display: none;
+}

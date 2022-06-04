@@ -35,6 +35,7 @@ function wireUpUI() {
     const sourceFolderValue = document.querySelector('#source-folder-value');
     const targetFolderValue = document.querySelector('#target-folder-value');
     const ffmpegPathValue = document.querySelector('#ffmpeg-value');
+    const checkForUpdates = document.querySelector('#check_for_updates');
 
     if (settings.sourceFolder !== undefined) {
         sourceFolderValue.innerHTML = settings.sourceFolder;
@@ -60,12 +61,15 @@ function wireUpUI() {
         bitRate.value = settings.bitRate;
     }
 
+    checkForUpdates.checked = settings.checkForUpdates;
+
     async function submit() {
         settings.sourceFolder = sourceFolderValue.innerHTML;
         settings.targetFolder = targetFolderValue.innerHTML;
         settings.ffmpegPath = ffmpegPathValue.innerHTML;
         settings.bitRate = bitRate.value;
         settings.concurrency = concurrency.value;
+        settings.checkForUpdates = checkForUpdates.checked;
 
         Files.saveSettings(settings);
 

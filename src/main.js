@@ -31,6 +31,8 @@ const MenuUtils = require('../lib/menuUtils');
 const Constants = require('../lib/constants');
 const Files = require('../lib/files');
 
+let checkForUpdatesEnabled = true;
+
 remote.initialize();
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -84,6 +86,10 @@ function wireUpUI() {
     app.commandLine.appendSwitch('remote-debugging-port', '9222');
   }
 
+  ipcMain.handle(StringLiterals.CHECK_FOR_UPDATES, async () => {
+    checkForUpdates();
+  });
+
   ipcMain.handle(StringLiterals.REJECT_LICENSE_TERMS, async () => {
     rejectLicenseTerms();
   });
@@ -116,7 +122,25 @@ function createMenus(window) {
       label: '&Help',
       submenu: [
         {
+          label: 'On-Line &Help', click() { onLineHelp(); }
+        },
+        {
+          type: StringLiterals.MENU_SEPARATOR
+        },
+        {
           label: '&Visit EricBT.com', click() { visitEricBT(); }
+        },
+        {
+          type: StringLiterals.MENU_SEPARATOR
+        },
+        {
+          label: 'Check for &Updates', click() { checkForUpdates(); }
+        },
+        {
+          type: StringLiterals.MENU_SEPARATOR
+        },
+        {
+          label: 'Email &Feedback', click() { feedback(); }
         },
         {
           type: StringLiterals.MENU_SEPARATOR
@@ -144,6 +168,56 @@ function createMenus(window) {
       Menu.setApplicationMenu(menu);
     }
   }
+}
+
+function checkForUpdates() {
+  if (checkForUpdatesEnabled) {
+    checkForUpdatesEnabled = false;
+
+    const windowId = 'check_for_updates';
+
+    const windowInfo = WindowInfo.loadWindowInfo(windowId);
+
+    const checkForUpdatesWindow = new BrowserWindow({
+      width: windowInfo.width,
+      height: windowInfo.height,
+      parent: mainWindow,
+      modal: false,
+      x: windowInfo.x,
+      y: windowInfo.y,
+      webPreferences: {
+        enableRemoteModule: true,
+        nodeIntegration: true,
+        contextIsolation: false,
+        preload: path.join(__dirname, 'preload.js')
+      }
+    });
+
+    MenuUtils.disableMenus(checkForUpdatesWindow);
+
+    // and load the index.html of the app.
+    checkForUpdatesWindow.loadFile('check_for_updates.html').then();
+
+    checkForUpdatesWindow.on(StringLiterals.RESIZE, (event) => {
+      WindowInfo.saveWindowInfo(windowId, event.sender);
+    });
+
+    checkForUpdatesWindow.on(StringLiterals.MOVE, (event) => {
+      WindowInfo.saveWindowInfo(windowId, event.sender);
+    });
+
+    checkForUpdatesWindow.on(StringLiterals.CLOSE, () => {
+      checkForUpdatesEnabled = true;
+    });
+  }
+}
+
+function onLineHelp() {
+  shell.openExternal(pkg.config.onLineHelpUrl).then();
+}
+
+function feedback() {
+  shell.openExternal(pkg.config.submitFeedback).then();
 }
 
 function createWindow () {

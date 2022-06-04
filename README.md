@@ -29,7 +29,11 @@ EBT Music Manager
 
 # Links
 
-[`github repo`](https://github.com/EricTerrell/ebt-music-manager)
+* [`website`](https://www.ericbt.com/ebt-music-manager)
+* [`binaries`](https://www.ericbt.com/ebt-music-manager/download)
+* [`installation`](https://www.ericbt.com/ebt-music-manager/installation)
+* [`version history`](https://www.ericbt.com/ebt-music-manager/versionhistory)
+* [`github repo`](https://github.com/EricTerrell/ebt-music-manager)
 
 # Quick Start
 
@@ -56,13 +60,7 @@ npm run build
 
 # Version History
 
-| Version | Notes                                                                                                                                                                                                                           |
-|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1.04    | Added filtering of playlists, albums, and tracks.                                                                                                                                                                               |
-| 1.03    | Bug Fix: In previous versions, if user entered invalid filename characters in playlist dialog, app would attempt to create playlist with a filename containing invalid characters. Invalid characters are now converted to '#'. |
-| 1.02    | User can now delete *selected* tracks. Updated dependencies.                                                                                                                                                                    |
-| 1.01    | There is now a separate count of items for playlists/albums and tracks.                                                                                                                                                         |
-| 1.00    | Initial version                                                                                                                                                                                                                 |
+See [`version history`](https://www.ericbt.com/ebt-music-manager/versionhistory).
 
 # Linux and OSX Versions
 
