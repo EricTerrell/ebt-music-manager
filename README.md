@@ -35,6 +35,10 @@ EBT Music Manager
 * [`version history`](https://www.ericbt.com/ebt-music-manager/versionhistory)
 * [`github repo`](https://github.com/EricTerrell/ebt-music-manager)
 
+# Installation
+
+See [`installation`](https://www.ericbt.com/ebt-music-manager/installation).
+
 # Quick Start
 
 First, install [`ffmpeg`](https://ffmpeg.org/) version 5.xx.
