@@ -38,6 +38,6 @@
     "luxon": "^2.4.0",
     "music-metadata": "^7.12.3",
     "pretty-data": "^0.40.0",
-    "tabulator-tables": "^5.2.6"
+    "tabulator-tables": "^5.2.7"
   }
 }
