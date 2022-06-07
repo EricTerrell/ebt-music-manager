@@ -601,7 +601,7 @@ function wireUpUI() {
 
             updatedFiles[audioFilePath] = true;
 
-            ProgressMessage.send(`Changing "${field}" to "${value}" in file "${data.name}"`);
+            ProgressMessage.send(`Changing ${field} to "${value}" in file "${data.name}"`);
 
             const updates = DataTableUtils.getUpdatesForField(field, value);
 
