@@ -1,0 +1,14 @@
+#tracks-grid {
+    width: 100%;
+    height: calc(100vh - 9em);
+
+    margin-bottom: 0.75em
+}
+
+#close, #next {
+    margin-left: 1em;
+}
+
+#player {
+    width: 50em;
+}

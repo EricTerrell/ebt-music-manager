@@ -72,6 +72,7 @@ const radioButtonAlbums = document.querySelector('#radio_button_albums');
 const radioButtonTracks = document.querySelector('#radio_button_tracks');
 
 const reorderTracksButton = document.querySelector('#reorder-tracks');
+const deleteTrackReferencesButton = document.querySelector('#delete-track-references');
 const deleteTracksButton = document.querySelector('#delete-tracks');
 const selectAllTracksButton = document.querySelector('#select-all-tracks');
 const unselectAllTracksButton = document.querySelector('#unselect-all-tracks');
@@ -159,6 +160,29 @@ function wireUpUI() {
         });
     });
 
+    const playButton = document.querySelector('#play');
+
+    playButton.addEventListener(StringLiterals.CLICK, () => {
+        const playWindow = WindowUtils.createWindow('play', true);
+        remote.require("@electron/remote/main").enable(playWindow.webContents);
+
+        let selectedTrack = StringLiterals.EMPTY_STRING;
+
+        const selectedRows = tracksTable.getSelectedRows();
+
+        if (selectedRows.length === 1) {
+            selectedTrack = selectedRows[0].getData().name;
+        }
+
+        playWindow.webContents.once(StringLiterals.DID_FINISH_LOAD, () => {
+            ipcRenderer.sendTo(playWindow.id, StringLiterals.CHILD_WINDOW_CHANNEL, {
+                'tracks': tracksTable.getData(),
+                selectedTrack,
+                metadata
+            });
+        });
+    })
+
     deleteTracksButton.addEventListener(StringLiterals.CLICK, async () => {
         const options = {
             type: StringLiterals.DIALOG_QUESTION,
@@ -176,6 +200,29 @@ function wireUpUI() {
             .then(response => {
                 if (response.response === 0) {
                     deleteSelectedTracks(selectedTracks);
+
+                    refresh(getSelectedHierarchyRowData(), true, StringLiterals.UPDATING_DISPLAY);
+                }
+            });
+    });
+
+    deleteTrackReferencesButton.addEventListener(StringLiterals.CLICK, async () => {
+        const options = {
+            type: StringLiterals.DIALOG_QUESTION,
+            title: 'Delete Track References',
+            message: `Delete references to selected tracks in playlist?`,
+            buttons: Constants.YES_NO_CANCEL,
+            defaultId: 0,
+            cancelId: 2,
+            icon: './resources/question_mark.png'
+        };
+
+        const selectedTracks = tracksTable.searchData('selected', '=', true);
+
+        dialog.showMessageBox(remote.getCurrentWindow(), options)
+            .then(response => {
+                if (response.response === 0) {
+                    deleteSelectedTrackReferences(selectedTracks);
 
                     refresh(getSelectedHierarchyRowData(), true, StringLiterals.UPDATING_DISPLAY);
                 }
@@ -224,6 +271,7 @@ function wireUpUI() {
                 saveTracksEditsButton.disabled = true;
                 undoTracksEditsButton.disabled = true;
                 reorderTracksButton.disabled = true;
+                deleteTrackReferencesButton.disabled = true;
                 deleteTracksButton.disabled = true;
             }, reason => {
                 finish();
@@ -374,6 +422,7 @@ function wireUpUI() {
 
         addToPlaylistButton.disabled = true;
         reorderTracksButton.disabled = true;
+        deleteTrackReferencesButton.disabled = true;
         deleteTracksButton.disabled = true;
 
         let trackArray = [];
@@ -461,6 +510,8 @@ function wireUpUI() {
 
         selectAllTracksButton.disabled =
             tableData.length === 0 || getSelectedItemType() === StringLiterals.ITEM_TYPE_TRACKS;
+
+        playButton.disabled = selectAllTracksButton.disabled;
     }
 
     function createContextMenu(fieldName) {
@@ -575,15 +626,18 @@ function wireUpUI() {
 
         const zeroItemsSelected = selectedCount === 0;
 
-        addToPlaylistButton.disabled = zeroItemsSelected;
-        deleteTracksButton.disabled = zeroItemsSelected;
-
         const selectedItemType = getSelectedItemType();
+
+        addToPlaylistButton.disabled = zeroItemsSelected;
+        deleteTrackReferencesButton.disabled = zeroItemsSelected || selectedItemType !== StringLiterals.ITEM_TYPE_PLAYLISTS;
+        deleteTracksButton.disabled = zeroItemsSelected;
 
         selectAllTracksButton.disabled = rowCount === 0 || selectedCount === rowCount ||
             selectedItemType === StringLiterals.ITEM_TYPE_TRACKS;
         unselectAllTracksButton.disabled = selectedCount === 0 ||
             selectedItemType === StringLiterals.ITEM_TYPE_TRACKS;
+
+        playButton.disabled = rowCount === 0;
     }
 
     async function saveChanges() {
@@ -904,6 +958,19 @@ function wireUpUI() {
             .forEach(([, value]) => {
                 try {
                     DeleteUtils.deleteTrack(value.name, metadata);
+                } catch(err) {
+                    ErrorHandler.displayError(err);
+                }
+            });
+    }
+
+    function deleteSelectedTrackReferences(selectedTrackReferences) {
+        console.log(`selectedTrackReferences: ${JSON.stringify(selectedTrackReferences)}`);
+
+        Object.entries(selectedTrackReferences)
+            .forEach(([, value]) => {
+                try {
+                    ScanForMetadata.deleteTrackReferences(value.name, metadata);
                 } catch(err) {
                     ErrorHandler.displayError(err);
                 }

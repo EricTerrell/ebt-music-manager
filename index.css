@@ -43,3 +43,7 @@
 #filter-text {
     width: calc(100vw - 61em);
 }
+
+#add-to-playlist, #play, #reorder-tracks, #delete-track-references {
+    margin-left: 1em;
+}
