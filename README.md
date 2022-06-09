@@ -1,6 +1,7 @@
 # EBT Music Manager
 
-EBT Music Manager allows you to edit playlists and audio file metadata. EBT Music Manager allows you to sync
+EBT Music Manager allows you to edit playlists and audio file metadata. EBT Music Manager can play your playlists, 
+albums, and tracks. EBT Music Manager allows you to sync
 your music to a folder, which can be copied to mobile devices. The sync process:
 
 1) Writes playlists to the target folder
@@ -26,6 +27,8 @@ EBT Music Manager
 ![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/add-tracks-to-playlist.png "Adding Tracks to Playlist")
 
 ![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/filter.png "Filtering")
+
+![`EBT Music Manager Screenshot`](https://www.ericbt.com/artwork/ebt-music-manager/playback.png "Playback")
 
 # Links
 

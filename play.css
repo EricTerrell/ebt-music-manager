@@ -12,3 +12,12 @@
 #player {
     width: 50em;
 }
+
+.audio-button {
+    height: 3em;
+    width: 3em;
+}
+
+#close {
+    margin-top: 0.5em;
+}

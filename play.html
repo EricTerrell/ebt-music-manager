@@ -11,14 +11,25 @@
 <body>
 <div id="tracks-grid"></div>
 
-<div>
-    <audio id="player" controls></audio>
-</div>
+<table>
+    <tbody>
+        <tr>
+            <td>
+                <div id="player-span">
+                    <audio id="player" controls></audio>
+                </div>
+            </td>
+            <td>
+                <div id="next-previous-buttons">
+                    <button id="next" class="audio-button" isabled>&gt;&gt;</button>
+                    <button id="previous" class="audio-button" disabled>&lt;&lt;</button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 <div>
-    <button id="play">Play</button>
-    <button id="next" disabled>&gt;&gt;</button>
-    <button id="previous" disabled>&lt;&lt;</button>
     <button id="close">Close</button>
 </div>
 

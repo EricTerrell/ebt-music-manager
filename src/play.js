@@ -31,8 +31,6 @@ let selectedTrack = undefined;
 
 let trackIndex = 0;
 
-let currentTime = 0;
-
 ipcRenderer.on(StringLiterals.CHILD_WINDOW_CHANNEL, (event, data) => {
     tracks = data.tracks;
     metadata = data.metadata;
@@ -42,8 +40,6 @@ ipcRenderer.on(StringLiterals.CHILD_WINDOW_CHANNEL, (event, data) => {
 });
 
 function wireUpUI() {
-    const playButton = document.querySelector('#play');
-
     const closeButton = document.querySelector('#close');
 
     closeButton.addEventListener(StringLiterals.CLICK, async () => {
@@ -82,39 +78,13 @@ function wireUpUI() {
                 tracksGrid.selectRow(tracksGrid.getData()[0].name);
             }
         }
+
+        player.src = getTrackPath();
     });
 
     const player = document.querySelector('#player');
 
-    playButton.addEventListener(StringLiterals.CLICK, () => {
-        const rows = tracksGrid.getData();
-
-        if (rows.length > 0) {
-            trackIndex = 0;
-
-            const selectedRows = tracksGrid.getSelectedRows();
-
-            if (selectedRows.length === 1) {
-                player.src = tracksGrid.getSelectedRows()[0].getData().name;
-
-                trackIndex = Math.max(0, rows.findIndex(element => element.name === selectedTrack));
-            } else {
-                player.src = rows[trackIndex].name;
-            }
-
-            player.currentTime = currentTime;
-            player.play();
-
-            setTimeout(() => {
-                tracksGrid.selectRow(rows[trackIndex].name);
-                tracksGrid.scrollToRow(rows[trackIndex].name, StringLiterals.TOP_OF_GRID, false);
-            });
-        }
-    });
-
     player.addEventListener(StringLiterals.ENDED, (event) => {
-        currentTime = 0;
-
         const rows = tracksGrid.getData();
 
         if (++trackIndex < rows.length) {
@@ -129,20 +99,10 @@ function wireUpUI() {
             });
         } else {
             tracksGrid.deselectRow();
-
-            playButton.disabled = false;
         }
     });
 
-    player.addEventListener(StringLiterals.PAUSE, () => {
-        playButton.disabled = false;
-
-        currentTime = player.currentTime;
-    });
-
     player.addEventListener(StringLiterals.PLAY, () => {
-        playButton.disabled = true;
-
         enableDisableButtons();
     })
 
@@ -199,5 +159,29 @@ function wireUpUI() {
     function enableDisableButtons() {
         nextButton.disabled = trackIndex >= tracksGrid.getData().length - 1;
         previousButton.disabled = trackIndex <= 0;
+    }
+
+    function getTrackPath() {
+        let trackPath;
+
+        trackIndex = 0;
+
+        const rows = tracksGrid.getData();
+
+        if (rows.length > 0) {
+            const selectedRows = tracksGrid.getSelectedRows();
+
+            if (selectedRows.length === 1) {
+                trackPath = tracksGrid.getSelectedRows()[0].getData().name;
+
+                trackIndex = Math.max(0, rows.findIndex(element => element.name === selectedTrack));
+            } else {
+                trackPath = rows[trackIndex].name;
+            }
+        } else if (rows.length === 0) {
+            trackPath = rows[0].name;
+        }
+
+        return trackPath;
     }
 }
