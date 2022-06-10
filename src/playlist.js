@@ -117,6 +117,8 @@ function wireUpUI() {
 
             const trackPaths = metadata.playlists[rowData.path];
 
+            let sequence = 1;
+
             for (const trackPath of trackPaths) {
                 const trackMetadata = metadata.audioFilePathToMetadata[trackPath.audioFilePath];
 
@@ -125,7 +127,8 @@ function wireUpUI() {
                     'album': trackMetadata?.common?.album,
                     'title': trackMetadata?.common?.title,
                     'discNumber': trackMetadata?.common.disk?.no,
-                    'trackNumber': trackMetadata?.common.track?.no
+                    'trackNumber': trackMetadata?.common.track?.no,
+                    'sequence': sequence++
                 };
 
                 newTracks.push(addTrack);
