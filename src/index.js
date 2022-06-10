@@ -380,6 +380,7 @@ function wireUpUI() {
         }
 
         hierarchyTable = new Tabulator("#hierarchy-grid", {
+            initialSort: [ { column: 'displayName', dir: StringLiterals.GRID_SORT_ASCENDING } ],
             'index': 'name',
             'data': tableData,
             'dataTree': false,
@@ -438,7 +439,8 @@ function wireUpUI() {
             switch (rowData.type) {
                 case StringLiterals.ITEM_TYPE_ALBUMS: {
                     editingMessage = `Editing Album "${rowData.name}":`;
-                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, getFilterSettings());
+                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, getFilterSettings())
+                        .sort(DataTableUtils.compareTracks);
                 }
                     break;
 
@@ -456,7 +458,8 @@ function wireUpUI() {
                 case StringLiterals.TYPE_ALL_TRACKS: {
                     editingMessage = `Editing All Tracks:`;
 
-                    trackArray = loadTracks(() => true, getFilterSettings());
+                    trackArray = loadTracks(() => true, getFilterSettings())
+                        .sort(DataTableUtils.compareTracks);
                 }
                     break;
             }
@@ -466,6 +469,7 @@ function wireUpUI() {
 
         if (tracksTable === undefined) {
             tracksTable = new Tabulator('#tracks-grid', {
+                initialSort: [ { column: StringLiterals.COLUMN_SEQUENCE, dir: StringLiterals.GRID_SORT_ASCENDING } ],
                 'index': 'name',
                 'persistenceID': 'tracks-grid',
                 'persistenceMode': 'local',

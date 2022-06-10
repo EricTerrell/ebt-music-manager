@@ -210,6 +210,7 @@ function wireUpUI() {
     }
 
     playlistsGrid = new Tabulator('#existing-playlists-grid', {
+        initialSort: [ { column: 'name', dir: StringLiterals.GRID_SORT_ASCENDING} ],
         index: 'name',
         layout: 'fitColumns',
         headerVisible: true,
@@ -237,10 +238,14 @@ function wireUpUI() {
         {title: "Title", field: "title", width: 200, responsive: 0},
         {title: "Disc #", field: "discNumber", width:100, responsive: 0, sorter: StringLiterals.GRID_SORTER_NUMBER},
         {title: "Track #", field: "trackNumber", width:100, responsive: 0, sorter: StringLiterals.GRID_SORTER_NUMBER},
+        {title: "Sequence", field: StringLiterals.COLUMN_SEQUENCE, width: 100, responsive: 0,
+            sorter: StringLiterals.GRID_SORTER_NUMBER
+        },
         {title: "File Path", field: "name", width: 100}
     ];
 
     playlistTracksGrid = new Tabulator('#playlist-tracks-grid', {
+        initialSort: [ { column: StringLiterals.COLUMN_SEQUENCE, dir: StringLiterals.GRID_SORT_ASCENDING } ],
         index: 'name',
         'persistenceID': 'playlist-tracks-grid',
         'persistenceMode': 'local',
