@@ -88,7 +88,7 @@ function wireUpUI() {
 
     const player = document.querySelector('#player');
 
-    player.addEventListener(StringLiterals.ENDED, (event) => {
+    player.addEventListener(StringLiterals.ENDED, () => {
         const rows = tracksGrid.getData();
 
         if (++trackIndex < rows.length) {

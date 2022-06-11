@@ -952,7 +952,7 @@ function wireUpUI() {
     }
 
     function printIconDelete() {
-        return "<image src='file:///./resources/trash.svg'/>";
+        return "<img src='file:///./resources/trash.svg'/>";
     }
 
     function deleteSelectedTracks(selectedTracks) {
