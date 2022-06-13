@@ -31,6 +31,8 @@ let selectedTrack = undefined;
 
 let trackIndex = 0;
 
+let rows = undefined;
+
 ipcRenderer.on(StringLiterals.CHILD_WINDOW_CHANNEL, (event, data) => {
     tracks = data.tracks;
     metadata = data.metadata;
@@ -83,14 +85,14 @@ function wireUpUI() {
             }
         }
 
+        rows = tracksGrid.getData();
+
         player.src = getTrackPath();
     });
 
     const player = document.querySelector('#player');
 
     player.addEventListener(StringLiterals.ENDED, () => {
-        const rows = tracksGrid.getData();
-
         if (++trackIndex < rows.length) {
             player.src = rows[trackIndex].name;
             player.play();
@@ -103,6 +105,11 @@ function wireUpUI() {
             });
         } else {
             tracksGrid.deselectRow();
+
+            trackIndex = 0;
+            tracksGrid.selectRow(rows[trackIndex].name);
+
+            player.src = rows[trackIndex].name;
         }
     });
 
