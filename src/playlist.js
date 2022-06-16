@@ -30,6 +30,7 @@ const PlaylistCreator = require('./lib/playlistCreator');
 const DialogBoxUtils = require('./lib/dialogBoxUtils');
 const Constants = require('./lib/constants');
 const DataTableUtils = require('./lib/dataTableUtils');
+const Filter = require('./lib/filter');
 
 const Tabulator = require("tabulator-tables");
 
@@ -59,6 +60,25 @@ ipcRenderer.on(StringLiterals.CHILD_WINDOW_CHANNEL, (event, data) => {
 });
 
 function wireUpUI() {
+    const filterCheckbox = document.querySelector('#filter-checkbox');
+    const filterCaseInsensitive = document.querySelector('#filter-case-insensitive');
+    const filterFieldName = document.querySelector('#filter-field-name');
+    const filterOperation = document.querySelector('#filter-operation');
+    const filterText = document.querySelector('#filter-text');
+
+    // When filter settings are changed, update UI asynchronously (so that user's typing is not disrupted).
+    const update = () => {
+        setTimeout(async () => {
+            updateUIForFilterSettings();
+        });
+    };
+
+    filterCheckbox.addEventListener(StringLiterals.CHANGE, update);
+    filterCaseInsensitive.addEventListener(StringLiterals.CHANGE, update);
+    filterText.addEventListener(StringLiterals.KEYDOWN, update);
+    filterFieldName.addEventListener(StringLiterals.CHANGE, update);
+    filterOperation.addEventListener(StringLiterals.CHANGE, update);
+
     radioExisting = document.querySelector('#radio-existing');
 
     radioExisting.addEventListener(StringLiterals.CLICK, () => {
@@ -158,6 +178,86 @@ function wireUpUI() {
         return name;
     }
 
+    function updateUIForFilterSettings() {
+        loadPlaylistsGrid();
+    }
+
+    function loadPlaylistsGrid() {
+        const existingPlaylistsGridColumns = [{
+            title: 'Name',
+            field: 'name',
+            headerSort: true
+        },
+            {
+                title: 'Full Path',
+                field: 'path',
+                visible: true
+            }];
+
+        const ext = `.${StringLiterals.PLAYLIST_FILE_TYPE}`;
+
+        const data = Filter
+            .filterPlaylists(metadata, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive))
+            .map(playlist => {
+                return {
+                    name: path.basename(playlist, ext),
+                    path: playlist
+                };
+            });
+
+        playlistsGrid = new Tabulator('#existing-playlists-grid', {
+            initialSort: [ { column: 'name', dir: StringLiterals.GRID_SORT_ASCENDING} ],
+            index: 'name',
+            layout: 'fitColumns',
+            headerVisible: true,
+            selectable: 1,
+            data: data,
+            dataTree: false,
+            columns: existingPlaylistsGridColumns
+        });
+
+        playlistsGrid.on('rowClick', () => {
+            enableDisableButtons();
+        });
+
+        playlistsGrid.on('rowSelected', (row) => {
+            updatePlaylistTracks([row]);
+        });
+
+        playlistsGrid.on('rowDeselected', () => {
+            updatePlaylistTracks();
+        });
+    }
+
+    function loadTracksGrid() {
+        const playlistsTracksGridColumns = [
+            {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
+            {title: "Album", field: "album", width: 200, responsive: 0},
+            {title: "Title", field: "title", width: 200, responsive: 0},
+            {title: "Disc #", field: "discNumber", width:100, responsive: 0, sorter: StringLiterals.GRID_SORTER_NUMBER},
+            {title: "Track #", field: "trackNumber", width:100, responsive: 0, sorter: StringLiterals.GRID_SORTER_NUMBER},
+            {title: "Sequence", field: StringLiterals.COLUMN_SEQUENCE, width: 100, responsive: 0,
+                sorter: StringLiterals.GRID_SORTER_NUMBER
+            },
+            {title: "File Path", field: "name", width: 100}
+        ];
+
+        playlistTracksGrid = new Tabulator('#playlist-tracks-grid', {
+            initialSort: [ { column: StringLiterals.COLUMN_SEQUENCE, dir: StringLiterals.GRID_SORT_ASCENDING } ],
+            index: 'name',
+            'persistenceID': 'playlist-tracks-grid',
+            'persistenceMode': 'local',
+            'persistence': true,
+            'layout': 'fitDataTable',
+            'selectable': 1,
+            'movableRows': true,
+            headerVisible: true,
+            data: tracks,
+            dataTree: false,
+            columns: playlistsTracksGridColumns
+        });
+    }
+
     okButton = document.querySelector('#ok');
 
     okButton.addEventListener(StringLiterals.CLICK, async () => {
@@ -187,80 +287,8 @@ function wireUpUI() {
 
     DialogBoxUtils.setupEscapeToClose();
 
-    const existingPlaylistsGridColumns = [{
-            title: 'Name',
-            field: 'name',
-            headerSort: true
-        },
-        {
-            title: 'Full Path',
-            field: 'path',
-            visible: true
-        }];
-
-    const data = [];
-
-    const sortedPlaylists = playlists.sort((a, b) => a.localeCompare(b));
-
-    const ext = `.${StringLiterals.PLAYLIST_FILE_TYPE}`;
-
-    for (const playlist of sortedPlaylists) {
-        data.push(
-            {
-                name: path.basename(playlist, ext),
-                path: playlist
-            });
-    }
-
-    playlistsGrid = new Tabulator('#existing-playlists-grid', {
-        initialSort: [ { column: 'name', dir: StringLiterals.GRID_SORT_ASCENDING} ],
-        index: 'name',
-        layout: 'fitColumns',
-        headerVisible: true,
-        selectable: 1,
-        data: data,
-        dataTree: false,
-        columns: existingPlaylistsGridColumns
-    });
-
-    playlistsGrid.on('rowClick', () => {
-        enableDisableButtons();
-    });
-
-    playlistsGrid.on('rowSelected', (row) => {
-        updatePlaylistTracks([row]);
-    });
-
-    playlistsGrid.on('rowDeselected', () => {
-        updatePlaylistTracks();
-    });
-
-    const playlistsTracksGridColumns = [
-        {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-        {title: "Album", field: "album", width: 200, responsive: 0},
-        {title: "Title", field: "title", width: 200, responsive: 0},
-        {title: "Disc #", field: "discNumber", width:100, responsive: 0, sorter: StringLiterals.GRID_SORTER_NUMBER},
-        {title: "Track #", field: "trackNumber", width:100, responsive: 0, sorter: StringLiterals.GRID_SORTER_NUMBER},
-        {title: "Sequence", field: StringLiterals.COLUMN_SEQUENCE, width: 100, responsive: 0,
-            sorter: StringLiterals.GRID_SORTER_NUMBER
-        },
-        {title: "File Path", field: "name", width: 100}
-    ];
-
-    playlistTracksGrid = new Tabulator('#playlist-tracks-grid', {
-        initialSort: [ { column: StringLiterals.COLUMN_SEQUENCE, dir: StringLiterals.GRID_SORT_ASCENDING } ],
-        index: 'name',
-        'persistenceID': 'playlist-tracks-grid',
-        'persistenceMode': 'local',
-        'persistence': true,
-        'layout': 'fitDataTable',
-        'selectable': 1,
-        'movableRows': true,
-        headerVisible: true,
-        data: tracks,
-        dataTree: false,
-        columns: playlistsTracksGridColumns
-    });
+    loadPlaylistsGrid();
+    loadTracksGrid();
 
     updateItemCount(tracks.length);
 

@@ -362,7 +362,7 @@ function wireUpUI() {
         let tableData = [];
 
         if (metadata !== undefined) {
-            tableData = DataTableUtils.toTableData(metadata, selectedItemType, getFilterSettings());
+            tableData = DataTableUtils.toTableData(metadata, selectedItemType, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive));
         }
 
         const editor = selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ?
@@ -439,7 +439,7 @@ function wireUpUI() {
             switch (rowData.type) {
                 case StringLiterals.ITEM_TYPE_ALBUMS: {
                     editingMessage = `Editing Album "${rowData.name}":`;
-                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, getFilterSettings())
+                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive))
                         .sort(DataTableUtils.compareTracks);
                 }
                     break;
@@ -458,7 +458,7 @@ function wireUpUI() {
                 case StringLiterals.TYPE_ALL_TRACKS: {
                     editingMessage = `Editing All Tracks:`;
 
-                    trackArray = loadTracks(() => true, getFilterSettings())
+                    trackArray = loadTracks(() => true, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive))
                         .sort(DataTableUtils.compareTracks);
                 }
                     break;
@@ -979,16 +979,6 @@ function wireUpUI() {
                     ErrorHandler.displayError(err);
                 }
             });
-    }
-
-    function getFilterSettings() {
-        return {
-            filter: filterCheckbox.checked,
-            fieldName: filterFieldName.options[filterFieldName.selectedIndex].value,
-            operation: filterOperation.options[filterOperation.selectedIndex].value,
-            text: filterText.value,
-            ignoreCase: filterCaseInsensitive.checked
-        };
     }
 
     function updateUIForFilterSettings() {

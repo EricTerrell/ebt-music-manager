@@ -15,6 +15,37 @@
 <div id="existing">
     <input type="radio" id="radio-existing" name="radio" class="radio-button" />
     <span id="to-existing-playlist" class="rb-label">to EXISTING playlist:</span>
+    <span id="filter-ui">
+        <label for="filter-checkbox" id="filter-label">Filter:</label>
+        <input id="filter-checkbox" type="checkbox" />
+
+        <select id="filter-field-name">
+          <option value="playlistAlbumName">Name/Album</option>
+          <option value="title">Title</option>
+          <option value="genre">Genre</option>
+          <option value="albumArtist">Album Artist</option>
+          <option value="artist">Artist</option>
+          <option value="composer">Composer</option>
+          <option value="date">Date</option>
+          <option value="filePath">File Path</option>
+          <option value="modified">Modified</option>
+        </select>
+
+        <select id="filter-operation">
+          <option value="contains">contains</option>
+          <option value="equals">&equals;</option>
+          <option value="ne">&ne;</option>
+          <option value="gt">&gt;</option>
+          <option value="ge">&ge;</option>
+          <option value="lt">&lt;</option>
+          <option value="le">&le;</option>
+        </select>
+
+        <input id="filter-text" type="text"/>
+
+        <label for="filter-checkbox">Ignore Case</label>
+        <input id="filter-case-insensitive" checked type="checkbox" />
+      </span>
     <div id="existing-playlists-grid"></div>
 </div>
 

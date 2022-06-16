@@ -37,3 +37,11 @@
 #note {
     margin-left: 0.5em;
 }
+
+#filter-ui {
+    margin-left: 2em;
+}
+
+#filter-text {
+    width: calc(100vw - 46em);
+}
