@@ -713,7 +713,7 @@ function wireUpUI() {
             const settings = Files.getSettings();
 
             metadata = ScanForMetadata.buildScanResults(metadata.playlistFilePaths, metadata.audioFilePathToMetadata,
-                settings.targetFolder);
+                settings.sourceFolder, settings.targetFolder);
 
             ScanForMetadata.writeMetadata(metadata, settings.targetFolder);
 
@@ -771,10 +771,27 @@ function wireUpUI() {
             const settings = Files.getSettings();
             metadata = ScanForMetadata.readMetadata(settings.targetFolder);
 
+            if (metadata && metadata.sourceFolderPath !== settings.sourceFolder) {
+                metadata = undefined;
+            }
+
             if (metadata !== undefined) {
                 updateTables();
+            } else {
+                itemCount.innerHTML = StringLiterals.EMPTY_STRING;
+                tracksCount.innerHTML = StringLiterals.EMPTY_STRING;
+
+                if (hierarchyTable !== undefined) {
+                    hierarchyTable.clearData();
+                }
+
+                if (tracksTable !== undefined) {
+                    tracksTable.clearData();
+                }
             }
         } catch (err) {
+            console.error(err);
+
             ErrorHandler.displayError(err);
         } finally {
             busy(false);
