@@ -21,6 +21,7 @@
 const expect = require('chai').expect;
 
 const FileSystemUtils = require('../lib/fileSystemUtils');
+const StringLiterals = require('../lib/stringLiterals');
 
 describe("FileSystemUtils tests", function () {
     it('Should not change valid file name', function () {
@@ -54,5 +55,22 @@ describe("FileSystemUtils tests", function () {
         expect(size).to.equal(111);
 
         expect(results['H:\\temp\\SmallTest\\TargetFolder\\metadata.json']).to.be.true;
+    });
+
+    it('should determine if filename contains some legal, or all illegal, characters', function() {
+        let result = FileSystemUtils.containsIllegalFileNameCharacters('aaa:bbb');
+        expect(result).to.be.true;
+
+        result = FileSystemUtils.containsIllegalFileNameCharacters('/dev/null');
+        expect(result).to.be.true;
+
+        result = FileSystemUtils.containsIllegalFileNameCharacters(StringLiterals.EMPTY_STRING);
+        expect(result).to.be.false;
+
+        result = FileSystemUtils.containsIllegalFileNameCharacters('README.md');
+        expect(result).to.be.false;
+
+        result = FileSystemUtils.containsIllegalFileNameCharacters('aaabbb');
+        expect(result).to.be.false;
     });
 });
