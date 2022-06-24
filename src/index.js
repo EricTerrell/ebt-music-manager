@@ -42,6 +42,7 @@ const Files = require('./lib/files');
 const ProgressMessage = require('./lib/progressMessage');
 const Filter = require('./lib/filter');
 const VersionChecker = require('./lib/versionChecker');
+const FileSystemUtils = require('./lib/fileSystemUtils');
 
 const scanButton = document.querySelector('#scan');
 
@@ -252,6 +253,7 @@ function wireUpUI() {
     scanButton.addEventListener(StringLiterals.CLICK, async () => {
         scan();
 
+        updateUIForFilterSettings();
         disableSaveAndUndoButtons();
     });
 
@@ -341,8 +343,13 @@ function wireUpUI() {
             setTimeout(async () => {
                 new Sync(settings.sourceFolder, settings.targetFolder)
                     .sync(metadata !== undefined ? metadata.audioFilePathToMetadata : undefined)
-                    .then(() => {
+                    .then(updatedMetadata => {
                         console.log('Sync.sync completed successfully');
+
+                        metadata = updatedMetadata;
+
+                        updateTables();
+                        updateUIForFilterSettings();
                     }, reason => {
                         console.error(`Sync.sync interrupted reason: ${reason}`);
 
@@ -369,7 +376,12 @@ function wireUpUI() {
             StringLiterals.GRID_EDITOR_INPUT : undefined;
 
         const columns = [
-            {title: 'Name', field: 'displayName', responsive: 0, editor: editor, cellEdited: playlistCellEdited},
+            {title: 'Name', field: 'displayName', responsive: 0, editor: editor, cellEdited: playlistCellEdited,
+                validator: [
+                    {
+                        type: validFilename
+                    }
+                ]},
             {title: 'FullName', field: 'name', 'visible': false},
         ];
 
@@ -416,6 +428,12 @@ function wireUpUI() {
         }
 
         checkTrackSelection();
+    }
+
+    function validFilename(cell, value, parameters) {
+        console.log(`valueFilename: value: ${value}`);
+
+        return !FileSystemUtils.containsIllegalFileNameCharacters(value);
     }
 
     function loadTable(rowData = undefined) {
