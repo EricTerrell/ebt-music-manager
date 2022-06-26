@@ -987,7 +987,7 @@ function wireUpUI() {
     }
 
     function printIconDelete() {
-        return "<img src='file:///./resources/trash.svg'/>";
+        return "<img src='./resources/trash.svg'/>";
     }
 
     function deleteSelectedTracks(selectedTracks) {
