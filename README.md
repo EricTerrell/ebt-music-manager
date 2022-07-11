@@ -38,11 +38,13 @@ EBT Music Manager
 * [`version history`](https://www.ericbt.com/ebt-music-manager/versionhistory)
 * [`github repo`](https://github.com/EricTerrell/ebt-music-manager)
 
-# Installation
+# Installation (for Users)
 
 See [`installation`](https://www.ericbt.com/ebt-music-manager/installation).
 
-# Quick Start
+# Quick Start (for Developers)
+
+Note: If you just intend to use EBT Music Manager, see Installation, above. If you intend to modify or debug the app:
 
 First, install [`ffmpeg`](https://ffmpeg.org/) version 5.xx.
 
