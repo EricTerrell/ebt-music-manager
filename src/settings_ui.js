@@ -26,6 +26,9 @@ const StringLiterals = require('./lib/stringLiterals');
 const Files = require('./lib/files');
 const Constants = require('./lib/constants');
 const DialogBoxUtils = require('./lib/dialogBoxUtils');
+const Tabulator = require("tabulator-tables");
+
+let audioFileTypeActionsTable = undefined;
 
 wireUpUI();
 
@@ -63,6 +66,28 @@ function wireUpUI() {
 
     checkForUpdates.checked = settings.checkForUpdates;
 
+    const columns = [
+        {title: "Audio File Type", field: "fileType", width: 200, responsive: 0},
+        {title: "Action", field: "action", width: 200, responsive: 0, editor: 'list', editorParams: {
+                values: [StringLiterals.CONVERT_TO_MP3, StringLiterals.COPY],
+                valuesLookupField: 'action'
+            },
+        }
+    ];
+
+    audioFileTypeActionsTable = new Tabulator('#audio-file-type-actions', {
+        index: 'fileType',
+        layout: 'fitColumns',
+        'persistenceID': 'file-type-actions-grid',
+        'persistenceMode': 'local',
+        'persistence': true,
+        headerVisible: true,
+        selectable: 1,
+        data: settings.audioFileTypeActions,
+        dataTree: false,
+        columns: columns
+    });
+
     async function submit() {
         settings.sourceFolder = sourceFolderValue.innerHTML;
         settings.targetFolder = targetFolderValue.innerHTML;
@@ -70,6 +95,17 @@ function wireUpUI() {
         settings.bitRate = bitRate.value;
         settings.concurrency = concurrency.value;
         settings.checkForUpdates = checkForUpdates.checked;
+
+        settings.audioFileTypeActions = [];
+
+        audioFileTypeActionsTable.getData().forEach(row => {
+            const item = {
+                fileType: row.fileType,
+                action: row.action
+            };
+
+            settings.audioFileTypeActions.push(item);
+        });
 
         Files.saveSettings(settings);
 

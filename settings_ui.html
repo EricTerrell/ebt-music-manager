@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <link href="common.css" rel="stylesheet" type="text/css">
+    <link href="./resources/tabulator.css" rel="stylesheet">
     <link href="settings_ui.css" rel="stylesheet" type="text/css">
     <title>Settings</title>
 </head>
 <body>
 
-<table>
+<table id="top-table">
     <thead>
     <tr>
         <th>Setting</th>
@@ -77,6 +78,10 @@
     </tr>
     </tbody>
 </table>
+
+<label for="audio-file-type-actions" id="table-label">Sync Actions:</label>
+
+<div id="audio-file-type-actions"></div>
 
 <div id="buttons">
     <button id="ok">OK</button>
