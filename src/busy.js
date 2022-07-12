@@ -35,7 +35,7 @@ ipcRenderer.on(StringLiterals.PROGRESS_MESSAGE, (event, data) => {
         document.querySelector('#percent').innerHTML = `${data.percent.toFixed(2)}&percnt; complete`;
     }
 
-    if (data.completed === true) {
+    if (data.completed) {
         cancelButton.disabled = true;
         okButton.disabled = false;
     }
