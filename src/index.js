@@ -114,12 +114,6 @@ function wireUpUI() {
         }
     });
 
-    ipcRenderer.on(StringLiterals.USER_CANCELLED, () => {
-        console.log(`index.js: got "${StringLiterals.USER_CANCELLED}" message`);
-
-        Cancel.cancel();
-    });
-
     ipcRenderer.on(StringLiterals.UPSERT_PLAYLIST, (event, data) => {
         console.log(`index.js received "ADDED_PLAYLIST" (${data})`);
 

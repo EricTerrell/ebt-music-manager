@@ -21,6 +21,7 @@
 const {ipcRenderer} = require('electron');
 
 const StringLiterals = require('./lib/stringLiterals');
+const Cancel = require('./lib/cancel');
 
 const okButton = document.querySelector('#ok');
 const cancelButton = document.querySelector('#cancel');
@@ -44,17 +45,15 @@ wireUpUI();
 
 function wireUpUI() {
     cancelButton.addEventListener(StringLiterals.CLICK, async () => {
+        console.log('user clicked cancel button');
+
         cancelButton.disabled = true;
 
         const message = document.querySelector('#message');
 
         message.innerHTML = 'Cancelling...';
 
-        // Send cancel notification to main process.
-        ipcRenderer.invoke(StringLiterals.USER_CANCELLED)
-            .then(() => {
-                console.log(`busy.js: sent "${StringLiterals.USER_CANCELLED}" notification`);
-            });
+        Cancel.cancel();
     });
 
     okButton.addEventListener(StringLiterals.CLICK, () => {

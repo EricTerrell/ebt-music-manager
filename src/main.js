@@ -244,6 +244,10 @@ function createWindow () {
     }
   });
 
+  if (windowInfo.isMaximized) {
+    mainWindow.maximize();
+  }
+
   remote.enable(mainWindow.webContents);
 
   // and load the index.html of the app.
@@ -278,12 +282,6 @@ function createWindow () {
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 }
-
-ipcMain.handle(StringLiterals.USER_CANCELLED, async () => {
-  console.log(`main.js: received "${StringLiterals.USER_CANCELLED}" notification`);
-
-  mainWindow.webContents.send(StringLiterals.USER_CANCELLED);
-});
 
 ipcMain.handle(StringLiterals.NOTIFY_SETTINGS_CHANGED, async () => {
   console.log(`main.js: received "${StringLiterals.NOTIFY_SETTINGS_CHANGED}" notification`);
