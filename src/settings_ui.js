@@ -104,6 +104,11 @@ function wireUpUI() {
                 action: row.action
             };
 
+            // Don't let the user specify that .mp3 files are transcoded to .mp3 files. Copy the file in this case.
+            if (item.fileType === StringLiterals.MP3_FILE_TYPE && item.action === StringLiterals.CONVERT_TO_MP3) {
+                item.action = StringLiterals.COPY;
+            }
+
             settings.audioFileTypeActions.push(item);
         });
 
