@@ -67,8 +67,8 @@ function wireUpUI() {
     checkForUpdates.checked = settings.checkForUpdates;
 
     const columns = [
-        {title: "Audio File Type", field: "fileType", width: 200, responsive: 0},
-        {title: "Action", field: "action", width: 200, responsive: 0, editor: 'list', editorParams: {
+        {title: 'Audio File Type', field: 'fileType', width: 200, responsive: 0},
+        {title: 'Action', field: 'action', width: 200, responsive: 0, editor: 'list', editorParams: {
                 values: [StringLiterals.CONVERT_TO_MP3, StringLiterals.COPY],
                 valuesLookupField: 'action'
             },
