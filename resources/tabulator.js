@@ -1,4 +1,4 @@
-/* Tabulator v5.3.1 (c) Oliver Folkerd 2022 */
+/* Tabulator v5.3.3 (c) Oliver Folkerd 2022 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -3325,6 +3325,7 @@
         var minHeight = 0;
 
         if (!this.redrawBlock) {
+          this.element.style.height = "";
           this.columns.forEach(function (column) {
             column.clearVerticalAlign();
           });
@@ -3335,6 +3336,7 @@
               minHeight = height;
             }
           });
+          this.element.style.height = minHeight + "px";
           this.columns.forEach(function (column) {
             column.verticalAlign(_this3.table.options.columnHeaderVertAlign, minHeight);
           });
@@ -3479,13 +3481,13 @@
     }, {
       key: "moveColumn",
       value: function moveColumn(from, to, after) {
-        this.moveColumnActual(from, to, after);
         to.element.parentNode.insertBefore(from.element, to.element);
 
         if (after) {
           to.element.parentNode.insertBefore(to.element, from.element);
         }
 
+        this.moveColumnActual(from, to, after);
         this.verticalAlignHeaders();
         this.table.rowManager.reinitialize();
       }
@@ -5692,80 +5694,82 @@
             index = 0,
             cascadeOrder = ["all", "dataPipeline", "display", "displayPipeline", "end"];
 
-        if (typeof handler === "function") {
-          index = this.dataPipeline.findIndex(function (item) {
-            return item.handler === handler;
-          });
-
-          if (index > -1) {
-            stage = "dataPipeline";
-
-            if (skipStage) {
-              if (index == this.dataPipeline.length - 1) {
-                stage = "display";
-              } else {
-                index++;
-              }
-            }
-          } else {
-            index = this.displayPipeline.findIndex(function (item) {
+        if (!this.table.destroyed) {
+          if (typeof handler === "function") {
+            index = this.dataPipeline.findIndex(function (item) {
               return item.handler === handler;
             });
 
             if (index > -1) {
-              stage = "displayPipeline";
+              stage = "dataPipeline";
 
               if (skipStage) {
-                if (index == this.displayPipeline.length - 1) {
-                  stage = "end";
+                if (index == this.dataPipeline.length - 1) {
+                  stage = "display";
                 } else {
                   index++;
                 }
               }
             } else {
-              console.error("Unable to refresh data, invalid handler provided", handler);
-              return;
-            }
-          }
-        } else {
-          stage = handler || "all";
-          index = 0;
-        }
+              index = this.displayPipeline.findIndex(function (item) {
+                return item.handler === handler;
+              });
 
-        if (this.redrawBlock) {
-          if (!this.redrawBlockRestoreConfig || this.redrawBlockRestoreConfig && (this.redrawBlockRestoreConfig.stage === stage && index < this.redrawBlockRestoreConfig.index || cascadeOrder.indexOf(stage) < cascadeOrder.indexOf(this.redrawBlockRestoreConfig.stage))) {
-            this.redrawBlockRestoreConfig = {
-              handler: handler,
-              skipStage: skipStage,
-              renderInPosition: renderInPosition,
-              stage: stage,
-              index: index
-            };
-          }
+              if (index > -1) {
+                stage = "displayPipeline";
 
-          return;
-        } else {
-          if (Helpers.elVisible(this.element)) {
-            if (renderInPosition) {
-              this.reRenderInPosition(this.refreshPipelines.bind(this, handler, stage, index, renderInPosition));
-            } else {
-              this.refreshPipelines(handler, stage, index, renderInPosition);
-
-              if (!handler) {
-                this.table.columnManager.renderer.renderColumns();
-              }
-
-              this.renderTable();
-
-              if (table.options.layoutColumnsOnNewData) {
-                this.table.columnManager.redraw(true);
+                if (skipStage) {
+                  if (index == this.displayPipeline.length - 1) {
+                    stage = "end";
+                  } else {
+                    index++;
+                  }
+                }
+              } else {
+                console.error("Unable to refresh data, invalid handler provided", handler);
+                return;
               }
             }
           } else {
-            this.refreshPipelines(handler, stage, index, renderInPosition);
+            stage = handler || "all";
+            index = 0;
           }
 
-          this.dispatch("data-refreshed");
+          if (this.redrawBlock) {
+            if (!this.redrawBlockRestoreConfig || this.redrawBlockRestoreConfig && (this.redrawBlockRestoreConfig.stage === stage && index < this.redrawBlockRestoreConfig.index || cascadeOrder.indexOf(stage) < cascadeOrder.indexOf(this.redrawBlockRestoreConfig.stage))) {
+              this.redrawBlockRestoreConfig = {
+                handler: handler,
+                skipStage: skipStage,
+                renderInPosition: renderInPosition,
+                stage: stage,
+                index: index
+              };
+            }
+
+            return;
+          } else {
+            if (Helpers.elVisible(this.element)) {
+              if (renderInPosition) {
+                this.reRenderInPosition(this.refreshPipelines.bind(this, handler, stage, index, renderInPosition));
+              } else {
+                this.refreshPipelines(handler, stage, index, renderInPosition);
+
+                if (!handler) {
+                  this.table.columnManager.renderer.renderColumns();
+                }
+
+                this.renderTable();
+
+                if (table.options.layoutColumnsOnNewData) {
+                  this.table.columnManager.redraw(true);
+                }
+              }
+            } else {
+              this.refreshPipelines(handler, stage, index, renderInPosition);
+            }
+
+            this.dispatch("data-refreshed");
+          }
         }
       }
     }, {
@@ -5831,31 +5835,16 @@
         this.displayRows = [];
         this.displayRows.push(this.activeRows.slice(0));
         this.displayRowsCount = this.displayRows[0].length;
-      }
-    }, {
-      key: "getNextDisplayIndex",
-      value: function getNextDisplayIndex() {
-        return this.displayRows.length;
       } //set display row pipeline data
 
     }, {
       key: "setDisplayRows",
       value: function setDisplayRows(displayRows, index) {
-        var output = true;
-
-        if (index && typeof this.displayRows[index] != "undefined") {
-          this.displayRows[index] = displayRows;
-          output = true;
-        } else {
-          this.displayRows.push(displayRows);
-          output = index = this.displayRows.length - 1;
-        }
+        this.displayRows[index] = displayRows;
 
         if (index == this.displayRows.length - 1) {
           this.displayRowsCount = this.displayRows[this.displayRows.length - 1].length;
         }
-
-        return output;
       }
     }, {
       key: "getDisplayRows",
@@ -5889,23 +5878,24 @@
     }, {
       key: "getRows",
       value: function getRows(type) {
-        var rows;
+        var rows = [];
 
-        switch (type) {
-          case "active":
-            rows = this.activeRows;
-            break;
+        if (!type) {
+          rows = this.chain("rows-retrieve", type, null, this.rows) || this.rows;
+        } else {
+          switch (type) {
+            case "active":
+              rows = this.activeRows;
+              break;
 
-          case "display":
-            rows = this.table.rowManager.getDisplayRows();
-            break;
+            case "display":
+              rows = this.table.rowManager.getDisplayRows();
+              break;
 
-          case "visible":
-            rows = this.getVisibleRows(false, true);
-            break;
-
-          default:
-            rows = this.chain("rows-retrieve", type, null, this.rows) || this.rows;
+            case "visible":
+              rows = this.getVisibleRows(false, true);
+              break;
+          }
         }
 
         return rows;
@@ -6014,9 +6004,7 @@
         this._clearPlaceholder();
 
         this.scrollTop = 0;
-        this.scrollLeft = 0; // clear empty table placeholder min
-
-        this.tableElement.style.minWidth = "";
+        this.scrollLeft = 0;
         this.renderer.clearRows();
       }
     }, {
@@ -6033,7 +6021,9 @@
       key: "_clearPlaceholder",
       value: function _clearPlaceholder() {
         if (this.placeholder && this.placeholder.parentNode) {
-          this.placeholder.parentNode.removeChild(this.placeholder);
+          this.placeholder.parentNode.removeChild(this.placeholder); // clear empty table placeholder min
+
+          this.tableElement.style.minWidth = "";
         }
       }
     }, {
@@ -6547,6 +6537,7 @@
         //ensure row component is looked up before cell
         var keys = Object.keys(targets).reverse(),
             listener = this.listeners[type],
+            matches = {},
             targetMatches = {};
 
         var _iterator4 = _createForOfIteratorHelper(keys),
@@ -6555,9 +6546,9 @@
         try {
           var _loop = function _loop() {
             var key = _step4.value;
-            var component = void 0;
-            var target = targets[key];
-            var previousTarget = _this5.previousTargets[key];
+            var component = void 0,
+                target = targets[key],
+                previousTarget = _this5.previousTargets[key];
 
             if (previousTarget && previousTarget.target === target) {
               component = previousTarget.component;
@@ -6588,8 +6579,8 @@
 
                 case "cell":
                   if (listener.components.includes("cell")) {
-                    if (targets["row"] instanceof Row) {
-                      component = targets["row"].findCell(target);
+                    if (matches["row"] instanceof Row) {
+                      component = matches["row"].findCell(target);
                     } else {
                       if (targets["row"]) {
                         console.warn("Event Target Lookup Error - The row this cell is attached to cannot be found, has the table been reinitialized without being destroyed first?");
@@ -6602,7 +6593,7 @@
             }
 
             if (component) {
-              targets[key] = component;
+              matches[key] = component;
               targetMatches[key] = {
                 target: target,
                 component: component
@@ -6620,7 +6611,7 @@
         }
 
         this.previousTargets = targetMatches;
-        return targets;
+        return matches;
       }
     }, {
       key: "triggerEvents",
@@ -7647,6 +7638,41 @@
       value: function registerDisplayHandler(handler, priority) {
         this.table.rowManager.registerDisplayPipelineHandler(handler, priority);
         this._handler = handler;
+      }
+    }, {
+      key: "displayRows",
+      value: function displayRows(adjust) {
+        var _this3 = this;
+
+        var index = this.table.rowManager.displayRows.length - 1,
+            lookupIndex;
+
+        if (this._handler) {
+          lookupIndex = this.table.rowManager.displayPipeline.findIndex(function (item) {
+            return item.handler === _this3._handler;
+          });
+
+          if (lookupIndex > -1) {
+            index = lookupIndex;
+          }
+        }
+
+        if (adjust) {
+          index = index + adjust;
+        }
+
+        if (this._handler) {
+          if (index > -1) {
+            return this.table.rowManager.getDisplayRows(index);
+          } else {
+            return this.activeRows();
+          }
+        }
+      }
+    }, {
+      key: "activeRows",
+      value: function activeRows() {
+        return this.table.rowManager.activeRows;
       }
     }, {
       key: "refreshData",
@@ -8923,7 +8949,7 @@
             data = JSON.parse(data);
           }
 
-          if (data) {
+          if (data && data.length > 0) {
             data.forEach(function (item) {
               var row = _this2.rowManager.findRow(item[_this2.options.index]);
 
@@ -8987,7 +9013,7 @@
             data = JSON.parse(data);
           }
 
-          if (data) {
+          if (data && data.length > 0) {
             data.forEach(function (item) {
               var row = _this4.rowManager.findRow(item[_this4.options.index]);
 
@@ -10991,8 +11017,6 @@
 
       _this.startOpen = function () {};
 
-      _this.displayIndex = 0;
-
       _this.registerTableOption("dataTree", false); //enable data tree
 
 
@@ -11305,16 +11329,6 @@
             el.insertBefore(config.controlEl, el.firstChild);
           }
         }
-      }
-    }, {
-      key: "setDisplayIndex",
-      value: function setDisplayIndex(index) {
-        this.displayIndex = index;
-      }
-    }, {
-      key: "getDisplayIndex",
-      value: function getDisplayIndex() {
-        return this.displayIndex;
       }
     }, {
       key: "getRows",
@@ -18282,7 +18296,7 @@
     }, {
       key: "isVisible",
       value: function isVisible() {
-        return this._group.visible;
+        return this._group._visible;
       }
     }, {
       key: "show",
@@ -18692,8 +18706,7 @@
             });
           }
 
-          this.groupManager.table.rowManager.setDisplayRows(this.groupManager.updateGroupRows(), this.groupManager.getDisplayIndex());
-          this.groupManager.checkBasicModeGroupHeaderWidth();
+          this.groupManager.updateGroupRows(true);
         } else {
           this.groupManager.updateGroupRows(true);
         }
@@ -18728,8 +18741,7 @@
             });
           }
 
-          this.groupManager.table.rowManager.setDisplayRows(this.groupManager.updateGroupRows(), this.groupManager.getDisplayIndex());
-          this.groupManager.checkBasicModeGroupHeaderWidth();
+          this.groupManager.updateGroupRows(true);
         } else {
           this.groupManager.updateGroupRows(true);
         }
@@ -18954,8 +18966,6 @@
       _this.allowedValues = false;
       _this.groups = {}; //hold row groups
 
-      _this.displayIndex = 0; //index in display pipeline
-
       _this.displayHandler = _this.getRows.bind(_assertThisInitialized(_this)); //register table options
 
       _this.registerTableOption("groupBy", false); //enable table grouping and set field to group by
@@ -19126,8 +19136,11 @@
     }, {
       key: "rowSample",
       value: function rowSample(rows, prevValue) {
-        var group = this.getGroups(false)[0];
-        prevValue.push(group.getRows(false)[0]);
+        if (this.table.options.groupBy) {
+          var group = this.getGroups(false)[0];
+          prevValue.push(group.getRows(false)[0]);
+        }
+
         return prevValue;
       }
     }, {
@@ -19135,40 +19148,43 @@
       value: function virtualRenderFill() {
         var el = this.table.rowManager.tableElement;
         var rows = this.table.rowManager.getVisibleRows();
-        rows = rows.filter(function (row) {
-          return row.type !== "group";
-        });
-        el.style.minWidth = !rows.length ? this.table.columnManager.getWidth() + "px" : ""; // if(this.table.options.groupBy){
-        // 	if(this.layoutMode() != "fitDataFill" && rowsCount == this.table.modules.groupRows.countGroups()){
-        // 		el.style.minWidth = this.table.columnManager.getWidth() + "px";
-        // 	}
-        // }
+
+        if (this.table.options.groupBy) {
+          rows = rows.filter(function (row) {
+            return row.type !== "group";
+          });
+          el.style.minWidth = !rows.length ? this.table.columnManager.getWidth() + "px" : "";
+        } else {
+          return rows;
+        }
       }
     }, {
       key: "rowAddingIndex",
       value: function rowAddingIndex(row, index, top) {
-        this.assignRowToGroup(row);
-        var groupRows = row.modules.group.rows;
+        if (this.table.options.groupBy) {
+          this.assignRowToGroup(row);
+          var groupRows = row.modules.group.rows;
 
-        if (groupRows.length > 1) {
-          if (!index || index && groupRows.indexOf(index) == -1) {
-            if (top) {
-              if (groupRows[0] !== row) {
-                index = groupRows[0];
-                this.table.rowManager.moveRowInArray(row.modules.group.rows, row, index, !top);
+          if (groupRows.length > 1) {
+            if (!index || index && groupRows.indexOf(index) == -1) {
+              if (top) {
+                if (groupRows[0] !== row) {
+                  index = groupRows[0];
+                  this.table.rowManager.moveRowInArray(row.modules.group.rows, row, index, !top);
+                }
+              } else {
+                if (groupRows[groupRows.length - 1] !== row) {
+                  index = groupRows[groupRows.length - 1];
+                  this.table.rowManager.moveRowInArray(row.modules.group.rows, row, index, !top);
+                }
               }
             } else {
-              if (groupRows[groupRows.length - 1] !== row) {
-                index = groupRows[groupRows.length - 1];
-                this.table.rowManager.moveRowInArray(row.modules.group.rows, row, index, !top);
-              }
+              this.table.rowManager.moveRowInArray(row.modules.group.rows, row, index, !top);
             }
-          } else {
-            this.table.rowManager.moveRowInArray(row.modules.group.rows, row, index, !top);
           }
-        }
 
-        return index;
+          return index;
+        }
       }
     }, {
       key: "trackChanges",
@@ -19250,50 +19266,46 @@
     }, {
       key: "rowMoving",
       value: function rowMoving(from, to, after) {
-        if (!after && to instanceof Group) {
-          to = this.table.rowManager.prevDisplayRow(from) || to;
-        }
-
-        var toGroup = to instanceof Group ? to : to.modules.group;
-        var fromGroup = from instanceof Group ? from : from.modules.group;
-
-        if (toGroup === fromGroup) {
-          this.table.rowManager.moveRowInArray(toGroup.rows, from, to, after);
-        } else {
-          if (fromGroup) {
-            fromGroup.removeRow(from);
+        if (this.table.options.groupBy) {
+          if (!after && to instanceof Group) {
+            to = this.table.rowManager.prevDisplayRow(from) || to;
           }
 
-          toGroup.insertRow(from, to, after);
+          var toGroup = to instanceof Group ? to : to.modules.group;
+          var fromGroup = from instanceof Group ? from : from.modules.group;
+
+          if (toGroup === fromGroup) {
+            this.table.rowManager.moveRowInArray(toGroup.rows, from, to, after);
+          } else {
+            if (fromGroup) {
+              fromGroup.removeRow(from);
+            }
+
+            toGroup.insertRow(from, to, after);
+          }
         }
       }
     }, {
       key: "rowDeleting",
       value: function rowDeleting(row) {
         //remove from group
-        if (row.modules.group) {
+        if (this.table.options.groupBy && row.modules.group) {
           row.modules.group.removeRow(row);
         }
       }
     }, {
       key: "rowsUpdated",
       value: function rowsUpdated(row) {
-        this.updateGroupRows(true);
+        if (this.table.options.groupBy) {
+          this.updateGroupRows(true);
+        }
       }
     }, {
       key: "cellUpdated",
       value: function cellUpdated(cell) {
-        this.reassignRowToGroup(cell.row);
-      }
-    }, {
-      key: "setDisplayIndex",
-      value: function setDisplayIndex(index) {
-        this.displayIndex = index;
-      }
-    }, {
-      key: "getDisplayIndex",
-      value: function getDisplayIndex() {
-        return this.displayIndex;
+        if (this.table.options.groupBy) {
+          this.reassignRowToGroup(cell.row);
+        }
       } //return appropriate rows with group headers
 
     }, {
@@ -19344,9 +19356,11 @@
     }, {
       key: "wipe",
       value: function wipe() {
-        this.groupList.forEach(function (group) {
-          group.wipe();
-        });
+        if (this.table.options.groupBy) {
+          this.groupList.forEach(function (group) {
+            group.wipe();
+          });
+        }
       }
     }, {
       key: "pullGroupListData",
@@ -19511,14 +19525,16 @@
     }, {
       key: "scrollHeaders",
       value: function scrollHeaders(left) {
-        if (this.table.options.renderHorizontal === "virtual") {
-          left -= this.table.columnManager.renderer.vDomPadLeft;
-        }
+        if (this.table.options.groupBy) {
+          if (this.table.options.renderHorizontal === "virtual") {
+            left -= this.table.columnManager.renderer.vDomPadLeft;
+          }
 
-        left = left + "px";
-        this.groupList.forEach(function (group) {
-          group.scrollHeader(left);
-        });
+          left = left + "px";
+          this.groupList.forEach(function (group) {
+            group.scrollHeader(left);
+          });
+        }
       }
     }, {
       key: "removeGroup",
@@ -20423,7 +20439,7 @@
         var range;
 
         if (this.table.modExists("edit")) {
-          if (this.table.modules.edit.currentCell === this) {
+          if (this.table.modules.edit.currentCell === cell) {
             return; //prevent instant selection of editor content
           }
         }
@@ -22466,8 +22482,6 @@
       _this.count = 5;
       _this.max = 1;
       _this.remoteRowCountEstimate = null;
-      _this.displayIndex = 0; //index in display pipeline
-
       _this.initialLoad = true;
       _this.dataChanging = false; //flag to check if data is being changed by this module
 
@@ -22939,16 +22953,6 @@
       key: "trackChanges",
       value: function trackChanges() {
         this.dispatch("page-changed");
-      }
-    }, {
-      key: "setDisplayIndex",
-      value: function setDisplayIndex(index) {
-        this.displayIndex = index;
-      }
-    }, {
-      key: "getDisplayIndex",
-      value: function getDisplayIndex() {
-        return this.displayIndex;
       } //calculate maximum page from number of rows
 
     }, {
@@ -23018,7 +23022,7 @@
     }, {
       key: "setPageToRow",
       value: function setPageToRow(row) {
-        var rows = this.table.rowManager.getDisplayRows(this.displayIndex - 1);
+        var rows = this.displayRows(-1);
         var index = rows.indexOf(row);
 
         if (index > -1) {
@@ -23628,6 +23632,8 @@
     }, {
       key: "initializeColumn",
       value: function initializeColumn(column) {
+        var _this2 = this;
+
         var def, keys;
 
         if (this.config.columns) {
@@ -23643,8 +23649,8 @@
                 set: function set(newValue) {
                   value = newValue;
 
-                  if (!this.defWatcherBlock) {
-                    this.save("columns");
+                  if (!_this2.defWatcherBlock) {
+                    _this2.save("columns");
                   }
 
                   if (props.set) {
@@ -23686,20 +23692,20 @@
     }, {
       key: "mergeDefinition",
       value: function mergeDefinition(oldCols, newCols) {
-        var _this2 = this;
+        var _this3 = this;
 
         var output = [];
         newCols = newCols || [];
         newCols.forEach(function (column, to) {
-          var from = _this2._findColumn(oldCols, column),
+          var from = _this3._findColumn(oldCols, column),
               keys;
 
           if (from) {
-            if (_this2.config.columns === true || _this2.config.columns == undefined) {
+            if (_this3.config.columns === true || _this3.config.columns == undefined) {
               keys = Object.keys(from);
               keys.push("width");
             } else {
-              keys = _this2.config.columns;
+              keys = _this3.config.columns;
             }
 
             keys.forEach(function (key) {
@@ -23709,14 +23715,14 @@
             });
 
             if (from.columns) {
-              from.columns = _this2.mergeDefinition(from.columns, column.columns);
+              from.columns = _this3.mergeDefinition(from.columns, column.columns);
             }
 
             output.push(from);
           }
         });
         oldCols.forEach(function (column, i) {
-          var from = _this2._findColumn(newCols, column);
+          var from = _this3._findColumn(newCols, column);
 
           if (!from) {
             if (output.length > i) {
@@ -23830,7 +23836,7 @@
     }, {
       key: "parseColumns",
       value: function parseColumns(columns) {
-        var _this3 = this;
+        var _this4 = this;
 
         var definitions = [],
             excludedKeys = ["headerContextMenu", "headerMenu", "contextMenu", "clickMenu"];
@@ -23841,16 +23847,16 @@
 
           if (column.isGroup) {
             defStore.title = colDef.title;
-            defStore.columns = _this3.parseColumns(column.getColumns());
+            defStore.columns = _this4.parseColumns(column.getColumns());
           } else {
             defStore.field = column.getField();
 
-            if (_this3.config.columns === true || _this3.config.columns == undefined) {
+            if (_this4.config.columns === true || _this4.config.columns == undefined) {
               keys = Object.keys(colDef);
               keys.push("width");
               keys.push("visible");
             } else {
-              keys = _this3.config.columns;
+              keys = _this4.config.columns;
             }
 
             keys.forEach(function (key) {
@@ -25844,13 +25850,18 @@
 
             if (rowMatch) {
               this._selectRow(rowMatch, true, true);
+
+              this._rowSelectionChanged();
             } else {
-              this.table.rowManager.getRows(rows).forEach(function (row) {
+              rowMatch = this.table.rowManager.getRows(rows);
+              rowMatch.forEach(function (row) {
                 _this3._selectRow(row, true, true);
               });
-            }
 
-            this._rowSelectionChanged();
+              if (rowMatch.length) {
+                this._rowSelectionChanged();
+              }
+            }
 
             break;
 
@@ -26544,13 +26555,10 @@
 
                 if (match > -1) {
                   sorters[match].dir = dir;
+                  match = sorters.splice(match, 1)[0];
 
-                  if (match != sorters.length - 1) {
-                    match = sorters.splice(match, 1)[0];
-
-                    if (dir != "none") {
-                      sorters.push(match);
-                    }
+                  if (dir != "none") {
+                    sorters.push(match);
                   }
                 } else {
                   if (dir != "none") {
@@ -26775,7 +26783,7 @@
         var sortEl = column.modules.sort.element,
             arrowEl;
 
-        if (typeof this.table.options.headerSortElement === "function") {
+        if (column.definition.headerSort && typeof this.table.options.headerSortElement === "function") {
           while (sortEl.firstChild) {
             sortEl.removeChild(sortEl.firstChild);
           }
