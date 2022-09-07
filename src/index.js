@@ -900,7 +900,7 @@ function wireUpUI() {
             const options = {
                 type: StringLiterals.DIALOG_INFO,
                 title: 'Specify Settings',
-                message: 'Source and Target Folders must be specified',
+                message: 'Source and Target Folders not specified or do not exist',
                 buttons: Constants.OK,
                 defaultId: 0,
                 cancelId: 2
