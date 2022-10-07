@@ -2,11 +2,6 @@ table, th, td {
     border: 1px black solid;
 }
 
-input {
-    font-family: Lucida Console, Courier, monospace;
-    font-size: large;
-}
-
 button {
     margin-top: 2em;
 }
@@ -21,4 +16,31 @@ th {
 
 #audio-file-type-actions {
     margin-top: 0.75em;
+}
+
+#limit_sync_size_gb {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    width: 6em;
+}
+
+#limit_sync_size {
+    margin-top: 0.5em;
+}
+
+#error_size_must_be_specified {
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    background: red;
+    color: white;
+    font-weight: bold;
+    font-size: larger;
+    display: none;
+}
+
+#bit-rate, #concurrency {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }

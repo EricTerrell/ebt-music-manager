@@ -31,7 +31,7 @@ ipcRenderer.on(StringLiterals.PROGRESS_MESSAGE, (event, data) => {
         document.querySelector('#message').innerHTML = data.message;
     }
 
-    if (data.percent !== undefined) {
+    if (data.percent !== undefined && !isNaN(data.percent)) {
         document.querySelector('#percent').innerHTML = `${data.percent.toFixed(2)}&percnt; complete`;
     }
 
