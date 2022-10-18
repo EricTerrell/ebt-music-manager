@@ -1,12 +1,12 @@
 {
   "name": "ebt-music-manager",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Edit audio file metadata and transcode audio files",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "build": "npm run build-windows && npm run build-linux",
-    "build-windows": "electron-packager . --icon=resources/icon.ico --out ../ebt-music-manager-build --overwrite --platform=win32 --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg",
+    "build-windows": "electron-packager . --icon=resources/icon.ico --out ../ebt-music-manager-build --overwrite --platform=win32 --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg --extraResource=resources/preventSleep.ps1",
     "build-linux": "electron-packager . --icon=resources/icon.png --extra-resource=resources/icon.png --out ../ebt-music-manager-build --overwrite --platform=linux --asar --extraResource=resources/question_mark.png --extraResource=resources/tabulator.css --extraResource=resources/luxon.min.js --extraResource=resources/trash.svg"
   },
   "repository": {
@@ -23,11 +23,11 @@
   },
   "keywords": [],
   "devDependencies": {
-    "nyc": "^15.1.0",
     "chai": "^4.3.6",
+    "electron": "^21.1.0",
     "mocha": "^10.0.0",
-    "sinon": "^14.0.1",
-    "electron": "^21.1.0"
+    "nyc": "^15.1.0",
+    "sinon": "^14.0.1"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",

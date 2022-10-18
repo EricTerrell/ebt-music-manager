@@ -43,6 +43,7 @@ const ProgressMessage = require('./lib/progressMessage');
 const Filter = require('./lib/filter');
 const VersionChecker = require('./lib/versionChecker');
 const FileSystemUtils = require('./lib/fileSystemUtils');
+const LogFile = require("./lib/logFile");
 
 const scanButton = document.querySelector('#scan');
 
@@ -78,9 +79,13 @@ const deleteTracksButton = document.querySelector('#delete-tracks');
 const selectAllTracksButton = document.querySelector('#select-all-tracks');
 const unselectAllTracksButton = document.querySelector('#unselect-all-tracks');
 
+let logFile = undefined;
+
 wireUpUI();
 
 function wireUpUI() {
+    setupLogFile(false);
+
     const filterCheckbox = document.querySelector('#filter-checkbox');
     const filterCaseInsensitive = document.querySelector('#filter-case-insensitive');
     const filterFieldName = document.querySelector('#filter-field-name');
@@ -102,6 +107,8 @@ function wireUpUI() {
 
     ipcRenderer.on(StringLiterals.NOTIFY_SETTINGS_CHANGED, () => {
         console.info('index.js: settings changed');
+
+        setupLogFile(true);
 
         const settings = Files.getSettings();
 
@@ -344,6 +351,8 @@ function wireUpUI() {
 
                         updateTables();
                         updateUIForFilterSettings();
+
+                        processingComplete();
                     }, reason => {
                         console.error(`Sync.sync interrupted reason: ${reason}`);
 
@@ -748,6 +757,10 @@ function wireUpUI() {
         }).then();
     }
 
+    function processingComplete() {
+        ipcRenderer.invoke(StringLiterals.PROCESSING_COMPLETE).then();
+    }
+
     function getSelectedItemType() {
         if (radioButtonPlaylists.checked) {
             return StringLiterals.ITEM_TYPE_PLAYLISTS;
@@ -1033,5 +1046,18 @@ function wireUpUI() {
         console.info(`needToCheckVersion: lastVersionCheck: ${lastVersionCheck} now: ${now} elapsedTimeDays: ${elapsedTimeDays} result: ${result}`);
 
         return result;
+    }
+
+    function setupLogFile(append) {
+        console.log('index.js: setupLogFile');
+
+        const settings = Files.getSettings();
+
+        console.log(`settings: ${JSON.stringify(settings)}`);
+
+        if (settings.targetFolder !== undefined && fs.existsSync(settings.targetFolder)) {
+            const logFilePath = path.join(settings.targetFolder, StringLiterals.LOG_FILENAME);
+            logFile = new LogFile(logFilePath, append);
+        }
     }
 }

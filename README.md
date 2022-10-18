@@ -48,6 +48,13 @@ Note: If you just intend to use EBT Music Manager, see Installation, above. If y
 
 First, install [`ffmpeg`](https://ffmpeg.org/) version 5.xx.
 
+Windows Users: Verify that your machine is configured to allow PowerShell scripts. Launch PowerShell and run
+this command:
+
+```
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+```
+
 To run EBT Music Manager:
 
 ```sh

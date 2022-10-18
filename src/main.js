@@ -30,6 +30,7 @@ const OSUtils = require('../lib/osUtils');
 const MenuUtils = require('../lib/menuUtils');
 const Constants = require('../lib/constants');
 const Files = require('../lib/files');
+const PowerManagement = require('../lib/powerManagement');
 
 let checkForUpdatesEnabled = true;
 
@@ -367,8 +368,17 @@ function busy(busy, message) {
   }
 }
 
+
 ipcMain.handle(StringLiterals.BUSY, async (event, data) => {
   busy(data.displayDialog, data.message);
+});
+
+ipcMain.handle(StringLiterals.PROCESSING_COMPLETE, () => {
+  if (busyWindow && busyWindow.__PID__ !== undefined) {
+    PowerManagement.allowSleep(busyWindow.__PID__);
+
+    busyWindow.__PID__ = undefined;
+  }
 });
 
 ipcMain.handle(StringLiterals.PROGRESS_MESSAGE, async (event, data) => {
@@ -402,18 +412,22 @@ function createBusyWindow(message) {
     }
   });
 
+  try {
+    busyWindow.__PID__ = PowerManagement.preventSleep();
+  } catch (error) {
+    console.error(error);
+  }
+
   remote.enable(busyWindow.webContents);
 
   busyWindow.webContents.on(StringLiterals.DID_FINISH_LOAD, () => {
+    console.log('busyWindow: did-finish-load');
+
     busyWindow.webContents.send(StringLiterals.PROGRESS_MESSAGE, { message });
   });
 
   // and load the index.html of the app.
   busyWindow.loadFile('busy.html').then();
-
-  busyWindow.webContents.on('did-finish-load', () => {
-    console.log('busyWindow: did-finish-load');
-  });
 
   busyWindow.webContents.on('did-fail-load', () => {
     console.warn('busyWindow: did-fail-load');
@@ -425,6 +439,20 @@ function createBusyWindow(message) {
 
   busyWindow.on(StringLiterals.MOVE, (event) => {
     WindowInfo.saveWindowInfo(windowId, event.sender);
+  });
+
+  busyWindow.webContents.on('close', () => {
+    console.log('busyWindow close');
+
+    if (busyWindow.__PID__ !== undefined) {
+      try {
+        PowerManagement.allowSleep(busyWindow.__PID__);
+
+        busyWindow.__PID__ = undefined;
+      } catch (error) {
+        console.error(error);
+      }
+    }
   });
 
   return busyWindow;
