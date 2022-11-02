@@ -33,7 +33,7 @@
     "@electron/remote": "^2.0.8",
     "async-promise-pool": "^1.0.6",
     "bootstrap-icons": "^1.9.1",
-    "electron-packager": "^16.0.0",
+    "electron-packager": "^17.1.1",
     "ffmetadata": "^1.7.0",
     "luxon": "^3.0.4",
     "music-metadata": "^7.12.6",
