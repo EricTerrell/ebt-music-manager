@@ -1,4 +1,4 @@
-/* Tabulator v5.4.0 (c) Oliver Folkerd 2022 */
+/* Tabulator v5.4.2 (c) Oliver Folkerd 2022 */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
@@ -1470,6 +1470,16 @@
 			return width;
 		}
 
+		getLeftOffset(){
+			var offset = this.element.offsetLeft;
+
+			if(this.parent.isGroup){
+				offset += this.parent.getLeftOffset();
+			}
+
+			return offset;
+		}
+
 		getHeight(){
 			return Math.ceil(this.element.getBoundingClientRect().height);
 		}
@@ -2339,6 +2349,12 @@
 						this.fitDataColActualWidthCheck(column);
 						
 						this.rightCol++; // Don't move this below the >= check below
+
+						this.getVisibleRows().forEach((row) => {
+							if(row.type !== "group"){
+								row.modules.vdomHoz.rightCol = this.rightCol;
+							}
+						});
 						
 						if(this.rightCol >= (this.columns.length - 1)){
 							this.vDomPadRight = 0;
@@ -2378,6 +2394,12 @@
 						});
 						
 						this.leftCol--; // don't move this below the <= check below
+
+						this.getVisibleRows().forEach((row) => {
+							if(row.type !== "group"){
+								row.modules.vdomHoz.leftCol = this.leftCol;
+							}
+						});
 						
 						if(this.leftCol <= 0){ // replicating logic in addColRight
 							this.vDomPadLeft = 0;
@@ -2430,6 +2452,12 @@
 						
 						this.vDomPadRight += column.getWidth();
 						this.rightCol --;
+
+						this.getVisibleRows().forEach((row) => {
+							if(row.type !== "group"){
+								row.modules.vdomHoz.rightCol = this.rightCol;
+							}
+						});
 					}else {
 						working = false;
 					}
@@ -2468,6 +2496,12 @@
 						
 						this.vDomPadLeft += column.getWidth();
 						this.leftCol ++;
+
+						this.getVisibleRows().forEach((row) => {
+							if(row.type !== "group"){
+								row.modules.vdomHoz.leftCol = this.leftCol;
+							}
+						});
 					}else {
 						working = false;
 					}
@@ -3075,9 +3109,10 @@
 		
 		scrollToColumn(column, position, ifVisible){
 			var left = 0,
-			offset = 0,
+			offset = column.getLeftOffset(),
 			adjust = 0,
 			colEl = column.getElement();
+			
 			
 			return new Promise((resolve, reject) => {
 				
@@ -3105,16 +3140,13 @@
 					
 					//check column visibility
 					if(!ifVisible){
-						
-						offset = colEl.offsetLeft;
-						
 						if(offset > 0 && offset + colEl.offsetWidth < this.element.clientWidth){
 							return false;
 						}
 					}
 					
 					//calculate scroll position
-					left = colEl.offsetLeft + adjust;
+					left = offset + adjust;
 					
 					left = Math.max(Math.min(left, this.table.rowManager.element.scrollWidth - this.table.rowManager.element.clientWidth),0);
 					
@@ -9709,6 +9741,16 @@
 			}
 		}
 		
+		reinitializeCalcs(){
+			if(this.topCalcs.length){
+				this.initializeTopRow();
+			}
+
+			if(this.botCalcs.length){
+				this.initializeBottomRow();
+			}
+		}
+		
 		initializeTopRow(){
 			if(!this.topInitialized){
 				this.table.columnManager.getContentsElement().insertBefore(this.topElement, this.table.columnManager.headersElement.nextSibling);
@@ -11904,6 +11946,7 @@
 			this.listIteration = 0;
 			
 			this.lastAction="";
+			this.filterTerm="";
 			
 			this.blurable = true;
 			
@@ -15195,9 +15238,9 @@
 					});
 
 					editorElement.addEventListener("focus", (e) => {
-						var left = this.table.columnManager.element.scrollLeft;
+						var left = this.table.columnManager.contentsElement.scrollLeft;
 
-						var headerPos = this.table.rowManager.element.scrollLeft + parseInt(this.table.columnManager.element.style.marginLeft);
+						var headerPos = this.table.rowManager.element.scrollLeft;
 
 						if(left !== headerPos){
 							this.table.rowManager.scrollHorizontal(left);
@@ -17094,17 +17137,19 @@
 			this.createValueGroups();
 		}
 		
-		wipe(){
-			if(this.groupList.length){
-				this.groupList.forEach(function(group){
-					group.wipe();
-				});
-			}else {
-				this.rows.forEach((row) => {
-					if(row.modules){
-						delete row.modules.group;
-					}
-				});
+		wipe(elementsOnly){
+			if(!elementsOnly){
+				if(this.groupList.length){
+					this.groupList.forEach(function(group){
+						group.wipe();
+					});
+				}else {
+					this.rows.forEach((row) => {
+						if(row.modules){
+							delete row.modules.group;
+						}
+					});
+				}
 			}
 			
 			this.element = false;
@@ -17737,7 +17782,7 @@
 				
 				this.groupIDLookups = [];
 				
-				if(Array.isArray(groupBy)){
+				if(groupBy){
 					if(this.table.modExists("columnCalcs") && this.table.options.columnCalcs != "table" && this.table.options.columnCalcs != "both"){
 						this.table.modules.columnCalcs.removeCalcs();
 					}
@@ -17877,6 +17922,10 @@
 			}
 			
 			this.configureGroupSetup();
+
+			if(!groups && this.table.modExists("columnCalcs") && this.table.options.columnCalcs === true){
+				this.table.modules.columnCalcs.reinitializeCalcs();
+			}
 			
 			this.refreshData();
 			
@@ -18032,6 +18081,9 @@
 				this.groupList.forEach(function(group){
 					group.wipe();
 				});
+				
+				this.groupList = [];
+				this.groups = {};
 			}
 		}
 		
@@ -18118,7 +18170,12 @@
 					this.assignRowToGroup(row, oldGroups);
 				});
 			}
+			
+			Object.values(oldGroups).forEach((group) => {
+				group.wipe(true);
+			});	
 		}
+		
 		
 		createGroup(groupID, level, oldGroups){
 			var groupKey = level + "_" + groupID,
@@ -19886,7 +19943,7 @@
 				
 				config.mousemove = function(e){
 					if(column.parent === self.moving.parent){
-						if((((self.touchMove ? e.touches[0].pageX : e.pageX) - Helpers.elOffset(colEl).left) + self.table.columnManager.element.scrollLeft) > (column.getWidth() / 2)){
+						if((((self.touchMove ? e.touches[0].pageX : e.pageX) - Helpers.elOffset(colEl).left) + self.table.columnManager.contentsElement.scrollLeft) > (column.getWidth() / 2)){
 							if(self.toCol !== column || !self.toColAfter){
 								colEl.parentNode.insertBefore(self.placeholderElement, colEl.nextSibling);
 								self.moveColumn(column, true);
@@ -21485,6 +21542,7 @@
 			if(!this.initialLoad){
 				if(this.mode == "local" || force){
 					this.page = 1;
+					this.trackChanges();
 				}
 			}
 		}
