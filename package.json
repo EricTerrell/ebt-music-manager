@@ -23,7 +23,7 @@
   },
   "keywords": [],
   "devDependencies": {
-    "chai": "^4.3.6",
+    "chai": "^4.3.7",
     "electron": "^21.2.2",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
