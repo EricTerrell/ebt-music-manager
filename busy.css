@@ -9,3 +9,8 @@
 #buttons_div {
     margin-top: 1em;
 }
+
+#log-file {
+    display: none;
+    margin-left: 2.5em;
+}

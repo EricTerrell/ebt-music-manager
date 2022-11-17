@@ -105,10 +105,10 @@ function wireUpUI() {
         settings.limitSyncSizeGB = parseInt(limitSyncSizeGB.value);
 
         if (limitSyncSize.checked && limitSyncSizeGB.value <= 0) {
-            errorSizeMustBeSpecified.style.display = 'block';
+            errorSizeMustBeSpecified.style.display = StringLiterals.DISPLAY_BLOCK;
             return;
         } else {
-            errorSizeMustBeSpecified.style.display = 'none';
+            errorSizeMustBeSpecified.style.display = StringLiterals.DISPLAY_NONE;
         }
 
         settings.audioFileTypeActions = [];

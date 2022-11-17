@@ -22,9 +22,11 @@ const {ipcRenderer} = require('electron');
 
 const StringLiterals = require('./lib/stringLiterals');
 const Cancel = require('./lib/cancel');
+const WindowUtils = require('./lib/windowUtils');
 
 const okButton = document.querySelector('#ok');
 const cancelButton = document.querySelector('#cancel');
+const logFileButton = document.querySelector('#log-file');
 
 ipcRenderer.on(StringLiterals.PROGRESS_MESSAGE, (event, data) => {
     if (data.message !== undefined) {
@@ -42,12 +44,15 @@ ipcRenderer.on(StringLiterals.PROGRESS_MESSAGE, (event, data) => {
     if (data.completed) {
         cancelButton.disabled = true;
         okButton.disabled = false;
+        logFileButton.style.display = StringLiterals.DISPLAY_INLINE;
     }
 });
 
 wireUpUI();
 
 function wireUpUI() {
+    logFileButton.addEventListener(StringLiterals.CLICK, displayLogFile);
+
     cancelButton.addEventListener(StringLiterals.CLICK, async () => {
         console.log('user clicked cancel button');
 
@@ -65,4 +70,8 @@ function wireUpUI() {
             'displayDialog': false
         }).then();
     })
+}
+
+function displayLogFile() {
+    WindowUtils.createWindow('log_file', true);
 }

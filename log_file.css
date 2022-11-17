@@ -1,0 +1,22 @@
+pre {
+    white-space: pre-wrap;
+    user-select: text;
+}
+
+#log_file_content {
+    width: 100%;
+    height: calc(100vh - 4.5em);
+
+    word-break: break-all;
+
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+
+#action_buttons {
+    margin-top: 2em;
+}
+
+#close {
+    margin-left: 2.5em;
+}

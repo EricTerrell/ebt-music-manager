@@ -78,6 +78,7 @@ const deleteTrackReferencesButton = document.querySelector('#delete-track-refere
 const deleteTracksButton = document.querySelector('#delete-tracks');
 const selectAllTracksButton = document.querySelector('#select-all-tracks');
 const unselectAllTracksButton = document.querySelector('#unselect-all-tracks');
+const logFileButton = document.querySelector('#log-file');
 
 let logFile = undefined;
 
@@ -85,6 +86,8 @@ wireUpUI();
 
 function wireUpUI() {
     setupLogFile(false);
+
+    logFileButton.addEventListener(StringLiterals.CLICK, displayLogFile);
 
     const filterCheckbox = document.querySelector('#filter-checkbox');
     const filterCaseInsensitive = document.querySelector('#filter-case-insensitive');
@@ -1059,5 +1062,9 @@ function wireUpUI() {
             const logFilePath = path.join(settings.targetFolder, StringLiterals.LOG_FILENAME);
             logFile = new LogFile(logFilePath, append);
         }
+    }
+
+    function displayLogFile() {
+        WindowUtils.createWindow('log_file', true);
     }
 }

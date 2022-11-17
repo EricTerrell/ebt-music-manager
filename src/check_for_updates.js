@@ -63,7 +63,7 @@ function errorCallback() {
 function notEqualsCallback() {
     console.log('notEqualsCallback');
 
-    obsoleteVersion.style.display = 'block';
+    obsoleteVersion.style.display = StringLiterals.DISPLAY_BLOCK;
 
     downloadButton.disabled = false;
 }
@@ -71,5 +71,5 @@ function notEqualsCallback() {
 function equalsCallback() {
     console.log('equalsCallback');
 
-    currentVersion.style.display = 'block';
+    currentVersion.style.display = StringLiterals.DISPLAY_BLOCK;
 }

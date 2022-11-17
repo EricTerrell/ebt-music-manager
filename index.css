@@ -47,3 +47,7 @@
 #add-to-playlist, #play, #reorder-tracks, #delete-track-references {
     margin-left: 1em;
 }
+
+#log-file {
+    margin-left: 2.5em;
+}
