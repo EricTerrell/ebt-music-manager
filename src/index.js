@@ -436,8 +436,8 @@ function wireUpUI() {
         checkTrackSelection();
     }
 
-    function validFilename(cell, value, parameters) {
-        console.log(`valueFilename: value: ${value}`);
+    function validFilename(cell, value /*, parameters */) {
+        console.log(`validFilename: value: ${value}`);
 
         return !FileSystemUtils.containsIllegalFileNameCharacters(value);
     }
