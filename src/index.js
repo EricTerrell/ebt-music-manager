@@ -578,7 +578,7 @@ function wireUpUI() {
                         });
                 },
                 disabled: function() {
-                    return getSelectedItemType() === StringLiterals.ITEM_TYPE_TRACKS;
+                    return false;
                 }
             }];
     }
