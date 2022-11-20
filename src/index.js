@@ -806,7 +806,8 @@ function wireUpUI() {
             if (metadata !== undefined) {
                 updateTables();
             } else {
-                itemCount.innerHTML = StringLiterals.EMPTY_STRING;
+                itemCount.innerHTML = '(0 items)';
+
                 tracksCount.innerHTML = StringLiterals.EMPTY_STRING;
 
                 if (hierarchyTable !== undefined) {

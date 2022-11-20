@@ -41,7 +41,7 @@
 }
 
 #filter-text {
-    width: calc(100vw - 61em);
+    width: calc(100vw - 70em);
 }
 
 #add-to-playlist, #play, #reorder-tracks, #delete-track-references {
