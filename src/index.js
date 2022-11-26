@@ -342,6 +342,11 @@ function wireUpUI() {
                     launchSettingsUI();
                 });
         } else {
+            if (!confirmDeleteTargetFolderContents(settings)) {
+                // Bail if user doesn't want to delete target file content
+                return;
+            }
+
             busy(true, 'Syncing Target Folder');
 
             setTimeout(async () => {
@@ -368,6 +373,27 @@ function wireUpUI() {
             });
         }
     });
+
+    // If user checked "Limit Synced Content Size", make sure they want to delete the target folder contents
+    function confirmDeleteTargetFolderContents(settings) {
+        if (settings.limitSyncSize) {
+            const message = `Delete all content in "${settings.targetFolder}"?`;
+
+            const options = {
+                type: StringLiterals.DIALOG_QUESTION,
+                title: 'Sync',
+                message,
+                buttons: Constants.YES_NO_CANCEL,
+                defaultId: 0,
+                cancelId: 2,
+                icon: './resources/question_mark.png'
+            };
+
+            return dialog.showMessageBoxSync(remote.getCurrentWindow(), options) === 0;
+        } else {
+            return true;
+        }
+    }
 
     function updateTables(selectedItemType = getSelectedItemType(), selectedHierarchyRowData = undefined) {
         console.log(`updateTables ${selectedItemType}`);
