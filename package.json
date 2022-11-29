@@ -27,7 +27,7 @@
     "electron": "^21.3.0",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
-    "sinon": "^14.0.2"
+    "sinon": "^15.0.0"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
