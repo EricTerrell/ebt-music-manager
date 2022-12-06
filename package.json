@@ -30,7 +30,7 @@
     "sinon": "^14.0.2"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.8",
+    "@electron/remote": "^2.0.9",
     "async-promise-pool": "^1.0.6",
     "bootstrap-icons": "^1.9.1",
     "electron-packager": "^17.1.1",
