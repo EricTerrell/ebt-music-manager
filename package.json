@@ -36,7 +36,7 @@
     "electron-packager": "^17.1.1",
     "ffmetadata": "^1.7.0",
     "luxon": "^3.1.0",
-    "music-metadata": "^7.13.0",
+    "music-metadata": "^7.13.1",
     "pretty-data": "^0.40.0",
     "tabulator-tables": "^5.4.2"
   }
