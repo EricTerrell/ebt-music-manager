@@ -1,6 +1,6 @@
 {
   "name": "ebt-music-manager",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "Edit audio file metadata and transcode audio files",
   "main": "src/main.js",
   "scripts": {
@@ -24,20 +24,20 @@
   "keywords": [],
   "devDependencies": {
     "chai": "^4.3.7",
-    "electron": "^21.3.0",
-    "mocha": "^10.1.0",
+    "electron": "^22.0.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^14.0.2"
+    "sinon": "^15.0.1"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.8",
+    "@electron/remote": "^2.0.9",
     "async-promise-pool": "^1.0.6",
     "bootstrap-icons": "^1.9.1",
     "electron-packager": "^17.1.1",
     "ffmetadata": "^1.7.0",
-    "luxon": "^3.1.0",
-    "music-metadata": "^7.13.0",
+    "luxon": "^3.2.1",
+    "music-metadata": "^7.13.1",
     "pretty-data": "^0.40.0",
-    "tabulator-tables": "^5.4.2"
+    "tabulator-tables": "^5.4.3"
   }
 }
