@@ -349,8 +349,10 @@ function wireUpUI() {
 
             busy(true, 'Syncing Target Folder');
 
+            const sync = new Sync(settings.sourceFolder, settings.targetFolder);
+
             setTimeout(async () => {
-                new Sync(settings.sourceFolder, settings.targetFolder)
+                    sync
                     .sync(metadata !== undefined ? metadata.audioFilePathToMetadata : undefined)
                     .then(updatedMetadata => {
                         console.log('Sync.sync completed successfully');
@@ -365,6 +367,8 @@ function wireUpUI() {
                         console.error(`Sync.sync interrupted reason: ${reason}`);
 
                         busy(false);
+
+                        sync.cleanup();
 
                         if (reason.toString() !== (new Error(StringLiterals.USER_CANCELLED)).toString()) {
                             ErrorHandler.displayError(reason);
