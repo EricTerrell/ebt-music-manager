@@ -551,9 +551,9 @@ function wireUpUI() {
 
         if (tracksTableBuilt) {
             if (getSelectedItemType() === StringLiterals.ITEM_TYPE_PLAYLISTS) {
-                tracksTable.showColumn(StringLiterals.COLUMN_PLAYLIST_POSITION);
+                tracksTable.showColumn(StringLiterals.CHANGE_TRACK_ORDER);
             } else {
-                tracksTable.hideColumn(StringLiterals.COLUMN_PLAYLIST_POSITION);
+                tracksTable.hideColumn(StringLiterals.CHANGE_TRACK_ORDER);
             }
         }
 
