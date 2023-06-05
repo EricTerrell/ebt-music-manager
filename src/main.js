@@ -1,6 +1,6 @@
 /*
   EBT Music Manager
-  (C) Copyright 2022, Eric Bergman-Terrell
+  (C) Copyright 2023, Eric Bergman-Terrell
 
   This file is part of EBT Music Manager.
 
@@ -200,11 +200,11 @@ function checkForUpdates() {
     checkForUpdatesWindow.loadFile('check_for_updates.html').then();
 
     checkForUpdatesWindow.on(StringLiterals.RESIZE, (event) => {
-      WindowInfo.saveWindowInfo(windowId, event.sender);
+      WindowInfo.saveWindowInfo(windowId, checkForUpdatesWindow);
     });
 
     checkForUpdatesWindow.on(StringLiterals.MOVE, (event) => {
-      WindowInfo.saveWindowInfo(windowId, event.sender);
+      WindowInfo.saveWindowInfo(windowId, checkForUpdatesWindow);
     });
 
     checkForUpdatesWindow.on(StringLiterals.CLOSE, () => {
@@ -271,11 +271,11 @@ function createWindow () {
   });
 
   mainWindow.on(StringLiterals.RESIZE, (event) => {
-    WindowInfo.saveWindowInfo(windowId, event.sender);
+    WindowInfo.saveWindowInfo(windowId, mainWindow);
   });
 
   mainWindow.on(StringLiterals.MOVE, (event) => {
-    WindowInfo.saveWindowInfo(windowId, event.sender);
+    WindowInfo.saveWindowInfo(windowId, mainWindow);
   });
 
   createMenus(mainWindow);
@@ -323,11 +323,11 @@ function about() {
   aboutWindow.loadFile('about.html').then();
 
   aboutWindow.on(StringLiterals.RESIZE, (event) => {
-    WindowInfo.saveWindowInfo(windowId, event.sender);
+    WindowInfo.saveWindowInfo(windowId, aboutWindow);
   });
 
   aboutWindow.on(StringLiterals.MOVE, (event) => {
-    WindowInfo.saveWindowInfo(windowId, event.sender);
+    WindowInfo.saveWindowInfo(windowId, aboutWindow);
   });
 }
 
@@ -434,11 +434,11 @@ function createBusyWindow(message) {
   });
 
   busyWindow.on(StringLiterals.RESIZE, (event) => {
-    WindowInfo.saveWindowInfo(windowId, event.sender);
+    WindowInfo.saveWindowInfo(windowId, busyWindow);
   });
 
   busyWindow.on(StringLiterals.MOVE, (event) => {
-    WindowInfo.saveWindowInfo(windowId, event.sender);
+    WindowInfo.saveWindowInfo(windowId, busyWindow);
   });
 
   busyWindow.webContents.on('close', () => {
