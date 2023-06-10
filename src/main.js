@@ -360,11 +360,15 @@ function busy(busy, message) {
     busyWindow.setMinimizable(false);
     busyWindow.setMaximizable(false);
     busyWindow.setClosable(false);
+
+    mainWindow.setEnabled(false);
   } else {
     busyWindow.setClosable(true);
     busyWindow.close();
 
     busyWindow = undefined;
+
+    mainWindow.setEnabled(true);
   }
 }
 
@@ -403,7 +407,7 @@ function createBusyWindow(message) {
     x: windowInfo.x,
     y: windowInfo.y,
     parent: mainWindow,
-    modal: true,
+    modal: false,
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
