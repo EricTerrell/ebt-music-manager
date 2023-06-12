@@ -795,13 +795,7 @@ function wireUpUI() {
     }
 
     function getSelectedItemType() {
-        if (radioButtonPlaylists.checked) {
-            return StringLiterals.ITEM_TYPE_PLAYLISTS;
-        } else if (radioButtonAlbums.checked) {
-            return StringLiterals.ITEM_TYPE_ALBUMS;
-        } else {
-            return StringLiterals.ITEM_TYPE_TRACKS;
-        }
+        return document.querySelector("input[name=rbgroup]:checked").value;
     }
 
     function getSelectedHierarchyRowData() {
