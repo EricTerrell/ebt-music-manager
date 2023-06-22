@@ -25,6 +25,8 @@ const {ipcRenderer} = require('electron');
 const remote = require('@electron/remote');
 const {dialog} = remote;
 
+const {pd: prettyData} = require('pretty-data');
+
 const Tabulator = require('tabulator-tables');
 
 const StringLiterals = require('./lib/stringLiterals');
@@ -44,6 +46,8 @@ const Filter = require('./lib/filter');
 const VersionChecker = require('./lib/versionChecker');
 const FileSystemUtils = require('./lib/fileSystemUtils');
 const LogFile = require("./lib/logFile");
+
+let syncStatus = syncStatusDefaultValue();
 
 const scanButton = document.querySelector('#scan');
 
@@ -67,7 +71,10 @@ let hierarchyTable = undefined;
 
 let metadata = undefined;
 
-let oldSourceFolder = undefined;
+let oldSourceAndTargetFolders = {
+    sourceFolderPath: undefined,
+    targetFolderPath: undefined
+};
 
 const radioButtonPlaylists = document.querySelector('#radio_button_playlists');
 const radioButtonAlbums = document.querySelector('#radio_button_albums');
@@ -80,12 +87,20 @@ const selectAllTracksButton = document.querySelector('#select-all-tracks');
 const unselectAllTracksButton = document.querySelector('#unselect-all-tracks');
 const logFileButton = document.querySelector('#log-file');
 
+const syncAllPlaylistsAlbumsButton = document.querySelector('#sync-all-playlists-albums');
+const syncNoPlaylistsAlbumsButton = document.querySelector('#sync-no-playlists-albums');
+
+const syncAllTracksButton = document.querySelector('#sync-all-tracks');
+const syncNoTracksButton = document.querySelector('#sync-no-tracks');
+
 let logFile = undefined;
 
 wireUpUI();
 
 function wireUpUI() {
     setupLogFile(false);
+
+    loadSyncStatus();
 
     logFileButton.addEventListener(StringLiterals.CLICK, displayLogFile);
 
@@ -115,11 +130,15 @@ function wireUpUI() {
 
         const settings = Files.getSettings();
 
-        if (oldSourceFolder !== settings.sourceFolder && fs.existsSync(settings.targetFolder)) {
-            console.log(`reload since source folder has changed`);
+        if ((oldSourceAndTargetFolders.sourceFolderPath !== settings.sourceFolder ||
+             oldSourceAndTargetFolders.targetFolderPath !== settings.targetFolder)
+                && fs.existsSync(settings.targetFolder)) {
+            console.log('reload because source and/or target folder has changed');
 
-            oldSourceFolder = settings.sourceFolder;
+            oldSourceAndTargetFolders.sourceFolderPath = settings.sourceFolder;
+            oldSourceAndTargetFolders.targetFolderPath = settings.targetFolder;
 
+            loadSyncStatus();
             loadCachedMetadata();
         }
     });
@@ -342,14 +361,9 @@ function wireUpUI() {
                     launchSettingsUI();
                 });
         } else {
-            if (!confirmDeleteTargetFolderContents(settings)) {
-                // Bail if user doesn't want to delete target file content
-                return;
-            }
-
             busy(true, 'Syncing Target Folder');
 
-            const sync = new Sync(settings.sourceFolder, settings.targetFolder);
+            const sync = new Sync(settings.sourceFolder, settings.targetFolder, syncStatus);
 
             setTimeout(async () => {
                     sync
@@ -378,34 +392,13 @@ function wireUpUI() {
         }
     });
 
-    // If user checked "Limit Synced Content Size", make sure they want to delete the target folder contents
-    function confirmDeleteTargetFolderContents(settings) {
-        if (settings.limitSyncSize) {
-            const message = `Delete all content in "${settings.targetFolder}"?`;
-
-            const options = {
-                type: StringLiterals.DIALOG_QUESTION,
-                title: 'Sync',
-                message,
-                buttons: Constants.YES_NO_CANCEL,
-                defaultId: 0,
-                cancelId: 2,
-                icon: './resources/question_mark.png'
-            };
-
-            return dialog.showMessageBoxSync(remote.getCurrentWindow(), options) === 0;
-        } else {
-            return true;
-        }
-    }
-
     function updateTables(selectedItemType = getSelectedItemType(), selectedHierarchyRowData = undefined) {
         console.log(`updateTables ${selectedItemType}`);
 
         let tableData = [];
 
         if (metadata !== undefined) {
-            tableData = DataTableUtils.toTableData(metadata, selectedItemType, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive));
+            tableData = DataTableUtils.toTableData(metadata, selectedItemType, syncStatus, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive));
         }
 
         const editor = selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ?
@@ -421,10 +414,24 @@ function wireUpUI() {
             {title: 'FullName', field: 'name', 'visible': false},
         ];
 
-        if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS) {
+        if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ||
+            selectedItemType === StringLiterals.ITEM_TYPE_ALBUMS) {
             columns.push(
                 {formatter: printIconDelete, headerSort: false, width: 30, cellClick: function(e, cell) { deletePlaylist(e, cell); }}
             );
+
+            const sync = {
+                title: "Sync", field: "sync", width: 100, responsive: 0, 'frozen': true, editor: "tickCross",
+                cellEdited: syncStatusChanged, formatter: "tickCross",
+                formatterParams: {
+                    'allowEmpty': false
+                },
+                editorParams: {
+                    'tristate': false
+                }
+            };
+
+            columns.unshift(sync);
         }
 
         hierarchyTable = new Tabulator("#hierarchy-grid", {
@@ -437,6 +444,9 @@ function wireUpUI() {
             'headerVisible': true,
             'columns': columns
         });
+
+        syncAllPlaylistsAlbumsButton.disabled = syncNoPlaylistsAlbumsButton.disabled =
+            tableData === undefined || tableData.length === 0;
 
         hierarchyTable.on(StringLiterals.ROW_CLICK, function(e, row) {
             loadTable(row.getData());
@@ -484,7 +494,7 @@ function wireUpUI() {
 
         let editingMessage = StringLiterals.EMPTY_STRING;
 
-        const tableColumns = DataTableUtils.getTracksTableColumns(createContextMenu, cellEdited);
+        const tableColumns = DataTableUtils.getTracksTableColumns(createContextMenu, cellEdited, syncStatusChangedTrack);
 
         if (rowData === undefined) {
             editingMessage = StringLiterals.EMPTY_STRING;
@@ -519,7 +529,7 @@ function wireUpUI() {
             }
         }
 
-        const tableData = DataTableUtils.trackArrayToTableData(trackArray);
+        const tableData = DataTableUtils.trackArrayToTableData(trackArray, syncStatus['tracks']);
 
         if (tracksTable === undefined) {
             tracksTable = new Tabulator('#tracks-grid', {
@@ -570,6 +580,8 @@ function wireUpUI() {
             tableData.length === 0 || getSelectedItemType() === StringLiterals.ITEM_TYPE_TRACKS;
 
         playButton.disabled = selectAllTracksButton.disabled;
+
+        syncAllTracksButton.disabled = syncNoTracksButton.disabled = trackArray.length === 0;
     }
 
     function createContextMenu(fieldName) {
@@ -637,6 +649,62 @@ function wireUpUI() {
         checkTrackSelection();
     }
 
+    /**
+     * When sync status has changed for a playlist or album, save the changes.
+     * @param cell table cell for which the sync status just changed
+     */
+
+    function syncStatusChanged(cell) {
+        const itemType = getSelectedItemType();
+
+        console.log(`syncStatusChanged: itemType: "${itemType}" name: "${cell._cell.row.data.name}" cell name: "${cell._cell.column.definition.field}" value: "${cell._cell.value}" old value: ${cell._cell.oldValue}`);
+
+        const data = cell.getTable().getData();
+
+        let dictionary = syncStatus[itemType];
+
+        data.map(element => {
+            dictionary[element.name] = element.sync === true;
+        });
+
+        saveSyncStatus();
+    }
+
+    /**
+     * When sync status has changed for a track, save the changes.
+     * @param cell table cell for which the sync status just changed
+     */
+
+    function syncStatusChangedTrack(cell) {
+        let dictionary = syncStatus[StringLiterals.ITEM_TYPE_TRACKS];
+
+        tracksTable.getData().map(element => {
+            dictionary[element.name] = element.sync === true;
+        });
+
+        saveSyncStatus();
+    }
+
+    function saveSyncStatus() {
+        const settings = Files.getSettings();
+        const filePath = path.join(settings.targetFolder, StringLiterals.SYNC_STATUS_FILENAME);
+
+        fs.writeFileSync(filePath, prettyData.json(JSON.stringify(syncStatus)), Constants.READ_WRITE_FILE_OPTIONS);
+    }
+
+    function loadSyncStatus() {
+        const settings = Files.getSettings();
+        const filePath = path.join(settings.targetFolder, StringLiterals.SYNC_STATUS_FILENAME);
+
+        try {
+            syncStatus = JSON.parse(fs.readFileSync(filePath, Constants.READ_WRITE_FILE_OPTIONS));
+        } catch (e) {
+            console.error(e);
+
+            syncStatus = syncStatusDefaultValue();
+        }
+    }
+
     function playlistCellEdited() {
         savePlaylistEditsButton.disabled = false;
         undoPlaylistEditsButton.disabled = false;
@@ -695,7 +763,7 @@ function wireUpUI() {
         unselectAllTracksButton.disabled = selectedCount === 0 ||
             selectedItemType === StringLiterals.ITEM_TYPE_TRACKS;
 
-        playButton.disabled = rowCount === 0;
+        playButton.disabled = syncAllTracksButton.disabled = syncNoTracksButton.disabled = rowCount === 0;
     }
 
     async function saveChanges() {
@@ -952,6 +1020,7 @@ function wireUpUI() {
                     launchSettingsUI();
                 });
         } else {
+            loadSyncStatus();
             loadCachedMetadata();
         }
     }
@@ -1092,4 +1161,49 @@ function wireUpUI() {
     function displayLogFile() {
         WindowUtils.createWindow('log_file', true);
     }
+
+    function updateTableSyncStatus(sync, table, itemType = getSelectedItemType()) {
+        try {
+            busy(true, 'Updating');
+
+            ipcRenderer.invoke(StringLiterals.BUSY_DIALOG_CONFIGURE, { noCancel: true }).then();
+
+            const updatedData = table
+                .getData()
+                .filter(rowData => rowData.sync !== sync)
+                .map(rowData => {
+                    rowData.sync = sync;
+
+                    syncStatus[itemType][rowData.name] = sync;
+
+                    return rowData;
+                });
+
+            table.updateData(updatedData);
+            saveSyncStatus();
+        } finally {
+            busy(false);
+        }
+    }
+
+    syncAllPlaylistsAlbumsButton.addEventListener(StringLiterals.CLICK, () => {
+        updateTableSyncStatus(true, hierarchyTable);
+    });
+
+    syncNoPlaylistsAlbumsButton.addEventListener(StringLiterals.CLICK, () => {
+        updateTableSyncStatus(false, hierarchyTable);
+    });
+
+    syncAllTracksButton.addEventListener(StringLiterals.CLICK, () => {
+        updateTableSyncStatus(true, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
+    });
+
+    syncNoTracksButton.addEventListener(StringLiterals.CLICK, () => {
+        updateTableSyncStatus(false, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
+    });
+}
+
+function syncStatusDefaultValue() {
+    return { [StringLiterals.ITEM_TYPE_PLAYLISTS]: {}, [StringLiterals.ITEM_TYPE_ALBUMS]: {},
+        [StringLiterals.ITEM_TYPE_TRACKS]: {} };
 }

@@ -391,6 +391,12 @@ ipcMain.handle(StringLiterals.PROGRESS_MESSAGE, async (event, data) => {
   }
 });
 
+ipcMain.handle(StringLiterals.BUSY_DIALOG_CONFIGURE, async (event, options) => {
+  if (busyWindow !== undefined) {
+    busyWindow.webContents.send(StringLiterals.BUSY_DIALOG_CONFIGURE, options);
+  }
+});
+
 ipcMain.handle(StringLiterals.UPSERT_PLAYLIST, async (event, data) => {
   mainWindow.webContents.send(StringLiterals.UPSERT_PLAYLIST, data);
 });

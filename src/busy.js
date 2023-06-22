@@ -48,6 +48,12 @@ ipcRenderer.on(StringLiterals.PROGRESS_MESSAGE, (event, data) => {
     }
 });
 
+ipcRenderer.on(StringLiterals.BUSY_DIALOG_CONFIGURE, (event, options) => {
+    if (options.noCancel) {
+        cancelButton.disabled = okButton.disabled = true;
+    }
+});
+
 wireUpUI();
 
 function wireUpUI() {

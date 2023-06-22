@@ -44,7 +44,7 @@
     width: calc(100vw - 70em);
 }
 
-#add-to-playlist, #play, #reorder-tracks, #delete-track-references {
+#add-to-playlist, #play, #reorder-tracks, #delete-track-references, #sync-all-playlists-albums, #sync-all-tracks {
     margin-left: 1em;
 }
 

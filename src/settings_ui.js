@@ -39,9 +39,6 @@ function wireUpUI() {
     const targetFolderValue = document.querySelector('#target-folder-value');
     const ffmpegPathValue = document.querySelector('#ffmpeg-value');
     const checkForUpdates = document.querySelector('#check_for_updates');
-    const limitSyncSize = document.querySelector('#limit_sync_size');
-    const limitSyncSizeGB = document.querySelector('#limit_sync_size_gb');
-    const errorSizeMustBeSpecified = document.querySelector('#error_size_must_be_specified');
 
     if (settings.sourceFolder !== undefined) {
         sourceFolderValue.innerHTML = settings.sourceFolder;
@@ -68,9 +65,6 @@ function wireUpUI() {
     }
 
     checkForUpdates.checked = settings.checkForUpdates;
-
-    limitSyncSize.checked = settings.limitSyncSize;
-    limitSyncSizeGB.value = settings.limitSyncSizeGB;
 
     const columns = [
         {title: 'Audio File Type', field: 'fileType', width: 200, responsive: 0},
@@ -101,15 +95,6 @@ function wireUpUI() {
         settings.bitRate = bitRate.value;
         settings.concurrency = concurrency.value;
         settings.checkForUpdates = checkForUpdates.checked;
-        settings.limitSyncSize = limitSyncSize.checked;
-        settings.limitSyncSizeGB = parseInt(limitSyncSizeGB.value);
-
-        if (limitSyncSize.checked && limitSyncSizeGB.value <= 0) {
-            errorSizeMustBeSpecified.style.display = StringLiterals.DISPLAY_BLOCK;
-            return;
-        } else {
-            errorSizeMustBeSpecified.style.display = StringLiterals.DISPLAY_NONE;
-        }
 
         settings.audioFileTypeActions = [];
 
