@@ -45,9 +45,10 @@ const ProgressMessage = require('./lib/progressMessage');
 const Filter = require('./lib/filter');
 const VersionChecker = require('./lib/versionChecker');
 const FileSystemUtils = require('./lib/fileSystemUtils');
-const LogFile = require("./lib/logFile");
+const LogFile = require('./lib/logFile');
+const SyncStatus = require('./lib/syncStatus');
 
-let syncStatus = syncStatusDefaultValue();
+let syncStatus = SyncStatus.getDefault();
 
 const scanButton = document.querySelector('#scan');
 
@@ -98,9 +99,11 @@ let logFile = undefined;
 wireUpUI();
 
 function wireUpUI() {
+    updateWindowTitle();
+
     setupLogFile(false);
 
-    loadSyncStatus();
+    syncStatus = SyncStatus.load();
 
     logFileButton.addEventListener(StringLiterals.CLICK, displayLogFile);
 
@@ -128,6 +131,8 @@ function wireUpUI() {
 
         setupLogFile(true);
 
+        updateWindowTitle();
+
         const settings = Files.getSettings();
 
         if ((oldSourceAndTargetFolders.sourceFolderPath !== settings.sourceFolder ||
@@ -138,7 +143,7 @@ function wireUpUI() {
             oldSourceAndTargetFolders.sourceFolderPath = settings.sourceFolder;
             oldSourceAndTargetFolders.targetFolderPath = settings.targetFolder;
 
-            loadSyncStatus();
+            syncStatus = SyncStatus.load();
             loadCachedMetadata();
         }
     });
@@ -529,7 +534,7 @@ function wireUpUI() {
             }
         }
 
-        const tableData = DataTableUtils.trackArrayToTableData(trackArray, syncStatus['tracks']);
+        const tableData = DataTableUtils.trackArrayToTableData(trackArray, syncStatus[StringLiterals.ITEM_TYPE_TRACKS]);
 
         if (tracksTable === undefined) {
             tracksTable = new Tabulator('#tracks-grid', {
@@ -667,7 +672,7 @@ function wireUpUI() {
             dictionary[element.name] = element.sync === true;
         });
 
-        saveSyncStatus();
+        SyncStatus.save(syncStatus);
     }
 
     /**
@@ -682,27 +687,7 @@ function wireUpUI() {
             dictionary[element.name] = element.sync === true;
         });
 
-        saveSyncStatus();
-    }
-
-    function saveSyncStatus() {
-        const settings = Files.getSettings();
-        const filePath = path.join(settings.targetFolder, StringLiterals.SYNC_STATUS_FILENAME);
-
-        fs.writeFileSync(filePath, prettyData.json(JSON.stringify(syncStatus)), Constants.READ_WRITE_FILE_OPTIONS);
-    }
-
-    function loadSyncStatus() {
-        const settings = Files.getSettings();
-        const filePath = path.join(settings.targetFolder, StringLiterals.SYNC_STATUS_FILENAME);
-
-        try {
-            syncStatus = JSON.parse(fs.readFileSync(filePath, Constants.READ_WRITE_FILE_OPTIONS));
-        } catch (e) {
-            console.error(e);
-
-            syncStatus = syncStatusDefaultValue();
-        }
+        SyncStatus.save(syncStatus);
     }
 
     function playlistCellEdited() {
@@ -1020,7 +1005,7 @@ function wireUpUI() {
                     launchSettingsUI();
                 });
         } else {
-            loadSyncStatus();
+            syncStatus = SyncStatus.load();
             loadCachedMetadata();
         }
     }
@@ -1180,7 +1165,7 @@ function wireUpUI() {
                 });
 
             table.updateData(updatedData);
-            saveSyncStatus();
+            SyncStatus.save(syncStatus);
         } finally {
             busy(false);
         }
@@ -1201,9 +1186,13 @@ function wireUpUI() {
     syncNoTracksButton.addEventListener(StringLiterals.CLICK, () => {
         updateTableSyncStatus(false, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
     });
-}
 
-function syncStatusDefaultValue() {
-    return { [StringLiterals.ITEM_TYPE_PLAYLISTS]: {}, [StringLiterals.ITEM_TYPE_ALBUMS]: {},
-        [StringLiterals.ITEM_TYPE_TRACKS]: {} };
+    function updateWindowTitle() {
+        const settings = Files.getSettings();
+
+        const suffix = settings.targetFolder !== undefined ?
+            ` - ${settings.targetFolder}` : StringLiterals.EMPTY_STRING;
+
+        remote.getCurrentWindow().title = `${StringLiterals.APP_NAME}${suffix}`;
+    }
 }
