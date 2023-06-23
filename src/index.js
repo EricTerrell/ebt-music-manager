@@ -873,6 +873,8 @@ function wireUpUI() {
         try {
             busy(true, StringLiterals.LOADING_CACHED_METADATA);
 
+            ipcRenderer.invoke(StringLiterals.BUSY_DIALOG_CONFIGURE, { noCancel: true }).then();
+
             const settings = Files.getSettings();
             metadata = ScanForMetadata.readMetadata(settings.targetFolder);
 
