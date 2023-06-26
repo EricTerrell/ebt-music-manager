@@ -368,6 +368,8 @@ function wireUpUI() {
         } else {
             busy(true, 'Syncing Target Folder');
 
+            SyncStatus.deleteObsoleteData(syncStatus, metadata);
+
             const sync = new Sync(settings.sourceFolder, settings.targetFolder, syncStatus);
 
             setTimeout(async () => {
