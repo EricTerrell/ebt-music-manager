@@ -21,8 +21,7 @@
 const {shell} = require('electron');
 const {config} = require('./package.json');
 const AppInfo = require('./lib/appInfo');
-const {checkVersion} = require('./lib/checkVersion');
-
+const CheckVersion = require('./lib/checkVersion');
 const StringLiterals = require('./lib/stringLiterals');
 
 const closeButton = document.querySelector('#close');
@@ -51,7 +50,7 @@ function wireUpUI() {
     });
 
     console.log('check_for_updates.js: calling checkVersion');
-    checkVersion(errorCallback, notEqualsCallback, equalsCallback);
+    CheckVersion.checkVersion(errorCallback, notEqualsCallback, equalsCallback);
 }
 
 function errorCallback() {

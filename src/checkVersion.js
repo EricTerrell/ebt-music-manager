@@ -18,16 +18,15 @@
     along with EBT Music Manager.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-const {checkVersion} = require('../lib/checkVersion');
+const CheckVersion = require('../lib/checkVersion');
 const StringLiterals = require('../lib/stringLiterals');
 
 try {
-    checkVersion(noop, notEquals, noop);
+    const noop = () => {};
+
+    CheckVersion.checkVersion(noop, notEquals, noop);
 } catch (err) {
     console.error(`checkVersion: ${err}`);
-}
-
-function noop() {
 }
 
 function notEquals() {
