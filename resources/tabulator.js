@@ -1,4 +1,4 @@
-/* Tabulator v5.5.0 (c) Oliver Folkerd 2023 */
+/* Tabulator v5.5.2 (c) Oliver Folkerd 2023 */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
@@ -1997,19 +1997,21 @@
 		constructor(table){
 			super(table);
 		}
-
-		renderRowCells(row) {
+		
+		renderRowCells(row, inFragment) {
 			const rowFrag = document.createDocumentFragment();
 			row.cells.forEach((cell) => {
 				rowFrag.appendChild(cell.getElement());
 			});
 			row.element.appendChild(rowFrag);
-
-			row.cells.forEach((cell) => {
-				cell.cellRendered();
-			});
+			
+			if(!inFragment){
+				row.cells.forEach((cell) => {
+					cell.cellRendered();
+				});
+			}
 		}
-
+		
 		reinitializeColumnWidths(columns){
 			columns.forEach(function(column){
 				column.reinitializeWidth();
@@ -3493,7 +3495,7 @@
 		}
 		
 		//functions to setup on first render
-		initialize(force){
+		initialize(force, inFragment){
 			this.create();
 			
 			if(!this.initialized || force){
@@ -3508,7 +3510,7 @@
 				
 				this.initialized = true;
 				
-				this.table.columnManager.renderer.renderRowCells(this);
+				this.table.columnManager.renderer.renderRowCells(this, inFragment);
 				
 				if(force){
 					this.normalizeHeight();
@@ -3522,8 +3524,14 @@
 				
 				this.dispatch("row-layout-after", this);
 			}else {
-				this.table.columnManager.renderer.rerenderRowCells(this);
+				this.table.columnManager.renderer.rerenderRowCells(this, inFragment);
 			}
+		}
+
+		rendered(){
+			this.cells.forEach((cell) => {
+				cell.cellRendered();
+			});
 		}
 		
 		reinitializeHeight(){
@@ -3887,82 +3895,100 @@
 	class BasicVertical extends Renderer{
 		constructor(table){
 			super(table);
-
+			
 			this.verticalFillMode = "fill";
-
+			
 			this.scrollTop = 0;
 			this.scrollLeft = 0;
-
+			
 			this.scrollTop = 0;
 			this.scrollLeft = 0;
 		}
-
+		
 		clearRows(){
 			var element = this.tableElement;
-
+			
 			// element.children.detach();
 			while(element.firstChild) element.removeChild(element.firstChild);
-
+			
 			element.scrollTop = 0;
 			element.scrollLeft = 0;
-
+			
 			element.style.minWidth = "";
 			element.style.minHeight = "";
 			element.style.display = "";
 			element.style.visibility = "";
 		}
-
+		
 		renderRows() {
 			var element = this.tableElement,
 			onlyGroupHeaders = true,
-			tableFrag = document.createDocumentFragment();
-
-			this.rows().forEach((row, index) => {
+			tableFrag = document.createDocumentFragment(),
+			rows = this.rows();
+			
+			rows.forEach((row, index) => {
 				this.styleRow(row, index);
-				row.initialize(true);
-
+				row.initialize(false, true);
+				
 				if (row.type !== "group") {
 					onlyGroupHeaders = false;
 				}
-
+				
 				tableFrag.appendChild(row.getElement());
 			});
+			
 			element.appendChild(tableFrag);
-
+			
+			rows.forEach((row) => {
+				row.rendered();
+				
+				if(!row.heightInitialized) {
+					row.calcHeight(true);
+				}
+			});
+			
+			rows.forEach((row) => {
+				if(!row.heightInitialized) {
+					row.setCellHeight();
+				}
+			});
+			
+			
+			
 			if(onlyGroupHeaders){
 				element.style.minWidth = this.table.columnManager.getWidth() + "px";
 			}else {
 				element.style.minWidth = "";
 			}
 		}
-
-
+		
+		
 		rerenderRows(callback){	
 			this.clearRows();
-
+			
 			if(callback){
 				callback();
 			}
-
+			
 			this.renderRows();
 		}
-
+		
 		scrollToRowNearestTop(row){
 			var rowTop = Helpers.elOffset(row.getElement()).top;
-
+			
 			return !(Math.abs(this.elementVertical.scrollTop - rowTop) > Math.abs(this.elementVertical.scrollTop + this.elementVertical.clientHeight - rowTop));
 		}
-
+		
 		scrollToRow(row){
 			var rowEl = row.getElement();
-
+			
 			this.elementVertical.scrollTop = Helpers.elOffset(rowEl).top - Helpers.elOffset(this.elementVertical).top + this.elementVertical.scrollTop;
 		}
-
+		
 		visibleRows(includingBuffer){
 			return this.rows();
 		}
-
+		
 	}
 
 	class VirtualDomVertical extends Renderer{
@@ -4251,13 +4277,14 @@
 					rowFragment = document.createDocumentFragment();
 
 					i = 0;
+
 					while ((i < rowsToRender) && this.vDomBottom < rowsCount -1) {	
 						index = this.vDomBottom + 1,
 						row = rows[index];
 
 						this.styleRow(row, index);
 
-						row.initialize();
+						row.initialize(false, true);
 						if(!row.heightInitialized && !this.table.options.rowHeight){
 							row.clearCellHeight();
 						}
@@ -4271,21 +4298,23 @@
 					if(!renderedRows.length){
 						break;
 					}
+
 					element.appendChild(rowFragment);
 					
 					// NOTE: The next 3 loops are separate on purpose
 					// This is to batch up the dom writes and reads which drastically improves performance 
+
 					renderedRows.forEach((row) => {
+						row.rendered();
+
 						if(!row.heightInitialized) {
 							row.calcHeight(true);
-							
 						}
 					});
 
 					renderedRows.forEach((row) => {
 						if(!row.heightInitialized) {
 							row.setCellHeight();
-							
 						}
 					});
 
@@ -5578,6 +5607,8 @@
 				
 				this.getElement().appendChild(this.placeholder);
 				this._positionPlaceholder();
+
+				this.adjustTableSize();
 			}
 		}
 		
@@ -6175,58 +6206,66 @@
 	class DataLoader extends CoreFeature{
 		constructor(table){
 			super(table);
-
+			
 			this.requestOrder = 0; //prevent requests coming out of sequence if overridden by another load request
 			this.loading = false;
 		}
-
+		
 		initialize(){}
-
+		
 		load(data, params, config, replace, silent, columnsChanged){
 			var requestNo = ++this.requestOrder;
 
+			if(this.table.destroyed){
+				return Promise.resolve();
+			}
+			
 			this.dispatchExternal("dataLoading", data);
-
+			
 			//parse json data to array
 			if (data && (data.indexOf("{") == 0 || data.indexOf("[") == 0)){
 				data = JSON.parse(data);
 			}
-
+			
 			if(this.confirm("data-loading", [data, params, config, silent])){
 				this.loading = true;
-
+				
 				if(!silent){
 					this.alertLoader();
 				}
-
+				
 				//get params for request
 				params = this.chain("data-params", [data, config, silent], params || {}, params || {});
-
+				
 				params = this.mapParams(params, this.table.options.dataSendParams);
-
+				
 				var result = this.chain("data-load", [data, params, config, silent], false, Promise.resolve([]));
 				
 				return result.then((response) => {
-					if(!Array.isArray(response) && typeof response == "object"){
-						response = this.mapParams(response, this.objectInvert(this.table.options.dataReceiveParams));
-					}
-
-					var rowData = this.chain("data-loaded", response, null, response);
-
-					if(requestNo == this.requestOrder){
-						this.clearAlert();
-
-						if(rowData !== false){
-							this.dispatchExternal("dataLoaded", rowData);
-							this.table.rowManager.setData(rowData,  replace, typeof columnsChanged === "undefined" ? !replace : columnsChanged);
+					if(!this.table.destroyed){
+						if(!Array.isArray(response) && typeof response == "object"){
+							response = this.mapParams(response, this.objectInvert(this.table.options.dataReceiveParams));
+						}
+						
+						var rowData = this.chain("data-loaded", response, null, response);
+						
+						if(requestNo == this.requestOrder){
+							this.clearAlert();
+							
+							if(rowData !== false){
+								this.dispatchExternal("dataLoaded", rowData);
+								this.table.rowManager.setData(rowData,  replace, typeof columnsChanged === "undefined" ? !replace : columnsChanged);
+							}
+						}else {
+							console.warn("Data Load Response Blocked - An active data load request was blocked by an attempt to change table data while the request was being made");
 						}
 					}else {
-						console.warn("Data Load Response Blocked - An active data load request was blocked by an attempt to change table data while the request was being made");
+						console.warn("Data Load Response Blocked - Table has been destroyed");
 					}
 				}).catch((error) => {
 					console.error("Data Load Error: ", error);
 					this.dispatchExternal("dataLoadError", error);
-
+					
 					if(!silent){
 						this.alertError();
 					}
@@ -6240,52 +6279,52 @@
 					});
 			}else {
 				this.dispatchExternal("dataLoaded", data);
-
+				
 				if(!data){
 					data = [];
 				}
-
+				
 				this.table.rowManager.setData(data, replace, typeof columnsChanged === "undefined" ? !replace : columnsChanged);
 				return Promise.resolve();
 			}
 		}
-
+		
 		mapParams(params, map){
 			var output = {};
-
+			
 			for(let key in params){
 				output[map.hasOwnProperty(key) ? map[key] : key] = params[key];
 			}
-
+			
 			return output;
 		}
-
+		
 		objectInvert(obj){
 			var output = {};
-
+			
 			for(let key in obj){
 				output[obj[key]] = key;
 			}
-
+			
 			return output;
 		}
-
+		
 		blockActiveLoad(){
 			this.requestOrder++;
 		}
-
+		
 		alertLoader(){
 			var shouldLoad = typeof this.table.options.dataLoader === "function" ? this.table.options.dataLoader() : this.table.options.dataLoader;
-
+			
 			if(shouldLoad){
 				this.table.alertManager.alert(this.table.options.dataLoaderLoading || this.langText("data|loading"));
 			}
 		}
-
+		
 		alertError(){
 			this.table.alertManager.alert(this.table.options.dataLoaderError || this.langText("data|error"), "error");
 		}
-
+		
 		clearAlert(){
 			this.table.alertManager.clear();
 		}
@@ -7375,6 +7414,16 @@
 			}
 
 			this.table.element.setAttribute("tabulator-layout", this.mode);
+			this.subscribe("column-init", this.initializeColumn.bind(this));
+		}
+
+		initializeColumn(column){
+			if(column.definition.widthGrow){
+				column.definition.widthGrow = Number(column.definition.widthGrow);
+			}
+			if(column.definition.widthShrink){
+				column.definition.widthShrink = Number(column.definition.widthShrink);
+			}
 		}
 
 		getMode(){
@@ -10268,6 +10317,9 @@
 							this.branchEl = options.dataTreeBranchElement;
 						}
 					}
+				}else {
+					this.branchEl = document.createElement("div");
+					this.branchEl.classList.add("tabulator-data-tree-branch-empty");
 				}
 
 				if(options.dataTreeCollapseElement){
@@ -10771,7 +10823,7 @@
 			var config = row.modules.dataTree,
 			output = [];
 
-			if(config.children){
+			if(config && config.children){
 
 				if(!Array.isArray(config.children)){
 					config.children = this.generateChildren(row);
@@ -17471,7 +17523,7 @@
 			this.arrowElement = document.createElement("div");
 			this.arrowElement.classList.add("tabulator-group-toggle");
 			this.arrowElement.appendChild(arrow);
-
+			
 			//setup movable rows
 			if(this.groupManager.table.options.movableRows !== false && this.groupManager.table.modExists("moveRow")){
 				this.groupManager.table.modules.moveRow.initializeGroupHeader(this);
@@ -17494,9 +17546,15 @@
 				toggleElement = this.groupManager.table.options.groupToggleElement == "arrow" ? this.arrowElement : this.element;
 				
 				toggleElement.addEventListener("click", (e) => {
-					e.stopPropagation();
-					e.stopImmediatePropagation();
-					this.toggleVisibility();
+					if(this.groupManager.table.options.groupToggleElement === "arrow"){
+						e.stopPropagation();
+						e.stopImmediatePropagation();
+					}
+
+					//allow click event to propagate before toggling visibility
+					setTimeout(() => {
+						this.toggleVisibility();
+					});
 				});
 			}
 		}
@@ -17617,7 +17675,7 @@
 				if(el.parentNode){
 					el.parentNode.removeChild(el);
 				}
-
+				
 				if(!this.groupManager.blockRedraw){
 					this.generateGroupHeaderContents();
 					
@@ -17742,6 +17800,7 @@
 			}
 			return count;
 		}
+
 		
 		toggleVisibility(){
 			if(this.visible){
@@ -17866,12 +17925,18 @@
 			return output;
 		}
 		
-		getRows(component){
+		getRows(component, includeChildren){
 			var output = [];
 			
-			this.rows.forEach(function(row){
-				output.push(component ? row.getComponent() : row);
-			});
+			if(includeChildren && this.groupList.length){
+				this.groupList.forEach((group) => {
+					output = output.concat(group.getRows(component, includeChildren));
+				});
+			}else {
+				this.rows.forEach(function(row){
+					output.push(component ? row.getComponent() : row);
+				});
+			}
 			
 			return output;
 		}
@@ -17879,7 +17944,9 @@
 		generateGroupHeaderContents(){
 			var data = [];
 			
-			this.rows.forEach(function(row){
+			var rows = this.getRows(false, true);
+			
+			rows.forEach(function(row){
 				data.push(row.getData());
 			});
 			
@@ -17984,6 +18051,8 @@
 		clearCellHeight(){}
 		
 		deinitializeHeight(){}
+
+		rendered(){}
 		
 		//////////////// Object Generation /////////////////
 		getComponent(){
@@ -18650,8 +18719,12 @@
 		},
 
 		rowMove: function(action){
-			this.table.rowManager.moveRowActual(action.component, this.table.rowManager.rows[action.data.posFrom], !action.data.after);
-			this.table.rowManager.redraw();
+			var after = (action.data.posFrom  - action.data.posTo) > 0;
+
+			this.table.rowManager.moveRowActual(action.component, this.table.rowManager.getRowFromPosition(action.data.posFrom), after);
+
+			this.table.rowManager.regenerateRowPositions();
+			this.table.rowManager.reRenderInPosition();
 		},
 	};
 
@@ -18676,8 +18749,10 @@
 		},
 
 		rowMove: function(action){
-			this.table.rowManager.moveRowActual(action.component, this.table.rowManager.rows[action.data.posTo], action.data.after);
-			this.table.rowManager.redraw();
+			this.table.rowManager.moveRowActual(action.component, this.table.rowManager.getRowFromPosition(action.data.posTo), action.data.after);
+			
+			this.table.rowManager.regenerateRowPositions();
+			this.table.rowManager.reRenderInPosition();
 		},
 	};
 
@@ -18978,7 +19053,7 @@
 				}
 
 				if(!col.field) {
-					col.field = header.textContent.trim().toLowerCase().replace(" ", "_");
+					col.field = header.textContent.trim().toLowerCase().replaceAll(" ", "_");
 				}
 
 				width = header.getAttribute("width");
@@ -19636,7 +19711,7 @@
 		scrollToEnd:35,
 		undo:["ctrl + 90", "meta + 90"],
 		redo:["ctrl + 89", "meta + 89"],
-		copyToClipboard:["ctrl + 67", "meta + 89"],
+		copyToClipboard:["ctrl + 67", "meta + 67"],
 	};
 
 	var defaultActions = {
@@ -23648,6 +23723,7 @@
 				if(cell.modules.resize && cell.modules.resize.handleEl){
 					if(frozenOffset){
 						cell.modules.resize.handleEl.style[column.modules.frozen.position] = frozenOffset;
+						cell.modules.resize.handleEl.style["z-index"] = 11;
 					}
 					
 					cell.element.after(cell.modules.resize.handleEl);

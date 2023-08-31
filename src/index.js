@@ -25,8 +25,6 @@ const {ipcRenderer} = require('electron');
 const remote = require('@electron/remote');
 const {dialog} = remote;
 
-const {pd: prettyData} = require('pretty-data');
-
 const Tabulator = require('tabulator-tables');
 
 const StringLiterals = require('./lib/stringLiterals');
@@ -682,7 +680,7 @@ function wireUpUI() {
      * @param cell table cell for which the sync status just changed
      */
 
-    function syncStatusChangedTrack(cell) {
+    function syncStatusChangedTrack(/* cell */) {
         let dictionary = syncStatus[StringLiterals.ITEM_TYPE_TRACKS];
 
         tracksTable.getData().map(element => {

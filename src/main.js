@@ -199,11 +199,11 @@ function checkForUpdates() {
     // and load the index.html of the app.
     checkForUpdatesWindow.loadFile('check_for_updates.html').then();
 
-    checkForUpdatesWindow.on(StringLiterals.RESIZE, (event) => {
+    checkForUpdatesWindow.on(StringLiterals.RESIZE, (/* event */) => {
       WindowInfo.saveWindowInfo(windowId, checkForUpdatesWindow);
     });
 
-    checkForUpdatesWindow.on(StringLiterals.MOVE, (event) => {
+    checkForUpdatesWindow.on(StringLiterals.MOVE, (/* event */) => {
       WindowInfo.saveWindowInfo(windowId, checkForUpdatesWindow);
     });
 
@@ -270,11 +270,11 @@ function createWindow () {
     mainWindow = null
   });
 
-  mainWindow.on(StringLiterals.RESIZE, (event) => {
+  mainWindow.on(StringLiterals.RESIZE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, mainWindow);
   });
 
-  mainWindow.on(StringLiterals.MOVE, (event) => {
+  mainWindow.on(StringLiterals.MOVE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, mainWindow);
   });
 
@@ -322,11 +322,11 @@ function about() {
   // and load the index.html of the app.
   aboutWindow.loadFile('about.html').then();
 
-  aboutWindow.on(StringLiterals.RESIZE, (event) => {
+  aboutWindow.on(StringLiterals.RESIZE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, aboutWindow);
   });
 
-  aboutWindow.on(StringLiterals.MOVE, (event) => {
+  aboutWindow.on(StringLiterals.MOVE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, aboutWindow);
   });
 }
@@ -443,11 +443,11 @@ function createBusyWindow(message) {
     console.warn('busyWindow: did-fail-load');
   });
 
-  busyWindow.on(StringLiterals.RESIZE, (event) => {
+  busyWindow.on(StringLiterals.RESIZE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, busyWindow);
   });
 
-  busyWindow.on(StringLiterals.MOVE, (event) => {
+  busyWindow.on(StringLiterals.MOVE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, busyWindow);
   });
 
