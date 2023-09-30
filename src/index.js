@@ -343,6 +343,19 @@ function wireUpUI() {
     });
 
     syncButton.addEventListener(StringLiterals.CLICK, () => {
+        if (filterCheckbox.checked) {
+            const options = {
+                type: StringLiterals.DIALOG_ERROR,
+                title: 'Sync',
+                message: 'Cannot sync with filter active. Clear Filter checkbox.',
+                buttons: Constants.OK
+            };
+
+            dialog.showMessageBox(remote.getCurrentWindow(), options).then();
+
+            return;
+        }
+
         const settings = Files.getSettings();
 
         if (settings.sourceFolder === undefined || settings.targetFolder === undefined ||
@@ -1174,20 +1187,43 @@ function wireUpUI() {
     }
 
     syncAllPlaylistsAlbumsButton.addEventListener(StringLiterals.CLICK, () => {
-        updateTableSyncStatus(true, hierarchyTable);
+        if (!warnSyncWithFilter()) {
+            updateTableSyncStatus(true, hierarchyTable);
+        }
     });
 
     syncNoPlaylistsAlbumsButton.addEventListener(StringLiterals.CLICK, () => {
-        updateTableSyncStatus(false, hierarchyTable);
+        if (!warnSyncWithFilter()) {
+            updateTableSyncStatus(false, hierarchyTable);
+        }
     });
 
     syncAllTracksButton.addEventListener(StringLiterals.CLICK, () => {
-        updateTableSyncStatus(true, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
+        if (!warnSyncWithFilter()) {
+            updateTableSyncStatus(true, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
+        }
     });
 
     syncNoTracksButton.addEventListener(StringLiterals.CLICK, () => {
-        updateTableSyncStatus(false, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
+        if (!warnSyncWithFilter()) {
+            updateTableSyncStatus(false, tracksTable, StringLiterals.ITEM_TYPE_TRACKS);
+        }
     });
+
+    function warnSyncWithFilter() {
+        if (filterCheckbox.checked) {
+            const options = {
+                type: StringLiterals.DIALOG_ERROR,
+                title: 'Sync',
+                message: 'Cannot change sync selections with filter active. Clear Filter checkbox.',
+                buttons: Constants.OK
+            };
+
+            dialog.showMessageBox(remote.getCurrentWindow(), options).then();
+        }
+
+        return filterCheckbox.checked;
+    }
 
     function updateWindowTitle() {
         const settings = Files.getSettings();
