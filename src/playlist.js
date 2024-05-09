@@ -50,7 +50,7 @@ let newPlaylist = undefined;
 
 let okButton = undefined;
 
-ipcRenderer.on(StringLiterals.CHILD_WINDOW_CHANNEL, (event, data) => {
+ipcRenderer.on(StringLiterals.ADD_TO_PLAYLIST_UI, (event, data) => {
     tracks = data.tracks;
     playlists = data.playlists;
     defaultPlaylistName = data.defaultPlaylistName;

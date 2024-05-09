@@ -173,26 +173,18 @@ function wireUpUI() {
     addToPlaylistButton.addEventListener(StringLiterals.CLICK, async () => {
         const selectedTracks = tracksTable.searchData('selected', '=', true);
 
-        const playlistWindow = WindowUtils.createWindow('playlist', true);
-        remote.require("@electron/remote/main").enable(playlistWindow.webContents);
-
-        playlistWindow.webContents.once(StringLiterals.DID_FINISH_LOAD, () => {
-            ipcRenderer.sendTo(playlistWindow.id, StringLiterals.CHILD_WINDOW_CHANNEL, {
-                'playlists': Object.keys(metadata.playlists),
-                'tracks': selectedTracks,
-                'defaultPlaylistName': getSelectedHierarchyRowData() !== undefined ?
-                    getSelectedHierarchyRowData().displayName : StringLiterals.EMPTY_STRING,
-                metadata
-            });
-        });
+        ipcRenderer.invoke(StringLiterals.ADD_TO_PLAYLIST_UI, {
+            'playlists': Object.keys(metadata.playlists),
+            'tracks': selectedTracks,
+            'defaultPlaylistName': getSelectedHierarchyRowData() !== undefined ?
+                getSelectedHierarchyRowData().displayName : StringLiterals.EMPTY_STRING,
+            metadata
+        }).then();
     });
 
     const playButton = document.querySelector('#play');
 
     playButton.addEventListener(StringLiterals.CLICK, () => {
-        const playWindow = WindowUtils.createWindow('play', true);
-        remote.require("@electron/remote/main").enable(playWindow.webContents);
-
         let selectedTrack = StringLiterals.EMPTY_STRING;
 
         const selectedRows = tracksTable.getSelectedRows();
@@ -201,14 +193,12 @@ function wireUpUI() {
             selectedTrack = selectedRows[0].getData().name;
         }
 
-        playWindow.webContents.once(StringLiterals.DID_FINISH_LOAD, () => {
-            ipcRenderer.sendTo(playWindow.id, StringLiterals.CHILD_WINDOW_CHANNEL, {
+        ipcRenderer.invoke(StringLiterals.PLAY_UI, {
                 'tracks': tracksTable.getData(),
                 selectedTrack,
                 metadata
-            });
-        });
-    })
+        }).then();
+    });
 
     deleteTracksButton.addEventListener(StringLiterals.CLICK, async () => {
         const options = {
@@ -458,7 +448,7 @@ function wireUpUI() {
             'data': tableData,
             'dataTree': false,
             'layout': 'fitColumns',
-            'selectable': 1,
+            'selectableRows': 1,
             'headerVisible': true,
             'columns': columns
         });
@@ -558,7 +548,7 @@ function wireUpUI() {
                 'persistence': true,
                 'layout': 'fitDataTable',
                 'movableRows': true,
-                'selectable': 1,
+                'selectableRows': 1,
                 'data': tableData,
                 'dataTree': false,
                 'columns': tableColumns

@@ -33,7 +33,7 @@ let trackIndex = 0;
 
 let rows = undefined;
 
-ipcRenderer.on(StringLiterals.CHILD_WINDOW_CHANNEL, (event, data) => {
+ipcRenderer.on(StringLiterals.PLAY_UI, (event, data) => {
     tracks = data.tracks;
     metadata = data.metadata;
     selectedTrack = data.selectedTrack !== StringLiterals.EMPTY_STRING ? data.selectedTrack : undefined;

@@ -65,7 +65,9 @@ function wireUpUI() {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
-    app.on(StringLiterals.READY, createWindow);
+    app.on(StringLiterals.READY, () => {
+      createMainWindow();
+    });
 
     // Quit when all windows are closed.
     app.on(StringLiterals.WINDOW_ALL_CLOSED, function () {
@@ -80,7 +82,7 @@ function wireUpUI() {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) {
-        createWindow()
+        createMainWindow();
       }
     });
 
@@ -97,7 +99,23 @@ function wireUpUI() {
 
   ipcMain.handle(StringLiterals.ACCEPT_LICENSE_TERMS, async () => {
     acceptLicenseTerms();
-  })
+  });
+
+  ipcMain.handle(StringLiterals.ADD_TO_PLAYLIST_UI, (event, args) => {
+    const window = createModalWindow('playlist', 'playlist.html');
+
+    window.webContents.once(StringLiterals.DID_FINISH_LOAD, () => {
+      window.webContents.send(StringLiterals.ADD_TO_PLAYLIST_UI, args);
+    });
+  });
+
+  ipcMain.handle(StringLiterals.PLAY_UI, (event, args) => {
+    const window = createModalWindow('play', 'play.html');
+
+    window.webContents.once(StringLiterals.DID_FINISH_LOAD, () => {
+      window.webContents.send(StringLiterals.PLAY_UI, args);
+    });
+  });
 }
 
 function createMenus(window) {
@@ -221,7 +239,7 @@ function feedback() {
   shell.openExternal(pkg.config.submitFeedback).then();
 }
 
-function createWindow () {
+function createMainWindow() {
   if (MenuUtils.displayCustomMenus()) {
     Menu.setApplicationMenu(null);
   }
@@ -262,14 +280,6 @@ function createWindow () {
     mainWindow = null
   });
 
-  // Emitted when the window is closed.
-  mainWindow.on(StringLiterals.CLOSED, function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
-  });
-
   mainWindow.on(StringLiterals.RESIZE, (/* event */) => {
     WindowInfo.saveWindowInfo(windowId, mainWindow);
   });
@@ -282,6 +292,53 @@ function createWindow () {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
+}
+
+function createModalWindow(windowId, fileName) {
+  // Create the browser window.
+  const windowInfo = WindowInfo.loadWindowInfo(windowId);
+
+  let window = new BrowserWindow({
+    width: windowInfo.width,
+    height: windowInfo.height,
+    x: windowInfo.x,
+    y: windowInfo.y,
+    webPreferences: {
+      enableRemoteModule: true,
+      nodeIntegration: true,
+      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  MenuUtils.disableMenus(window);
+
+  if (windowInfo.isMaximized) {
+    window.maximize();
+  }
+
+  remote.enable(window.webContents);
+
+  // and load the index.html of the app.
+  window.loadFile(fileName).then();
+
+  // Emitted when the window is closed.
+  window.on(StringLiterals.CLOSED, function () {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    window = null
+  });
+
+  window.on(StringLiterals.RESIZE, (/* event */) => {
+    WindowInfo.saveWindowInfo(windowId, window);
+  });
+
+  window.on(StringLiterals.MOVE, (/* event */) => {
+    WindowInfo.saveWindowInfo(windowId, window);
+  });
+
+  return window;
 }
 
 ipcMain.handle(StringLiterals.NOTIFY_SETTINGS_CHANGED, async () => {
