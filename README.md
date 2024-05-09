@@ -8,6 +8,8 @@ your music to a folder, which can be copied to mobile devices. The sync process:
 2) Copies .mp3 files to the target folder
 3) Converts .flac files to .mp3 format, and copies the .mp3 files to the target folder
 
+Users can customize the audio file transcoding process.
+
 EBT Music Manager runs on 64-bit Windows and 64-bit Linux. EBT Music Manager is open source.
 
 EBT Music Manager is built on the [`Electron`](https://github.com/electron/electron) framework.
@@ -16,7 +18,7 @@ EBT Music Manager is built on the [`Electron`](https://github.com/electron/elect
 
 EBT Music Manager
 
-&#169; Copyright 2022, [`Eric Bergman-Terrell`](https://www.ericbt.com)
+&#169; Copyright 2024, [`Eric Bergman-Terrell`](https://www.ericbt.com)
 
 # Screenshots
 
