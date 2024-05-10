@@ -193,37 +193,8 @@ function checkForUpdates() {
   if (checkForUpdatesEnabled) {
     checkForUpdatesEnabled = false;
 
-    const windowId = 'check_for_updates';
-
-    const windowInfo = WindowInfo.loadWindowInfo(windowId);
-
-    const checkForUpdatesWindow = new BrowserWindow({
-      width: windowInfo.width,
-      height: windowInfo.height,
-      parent: mainWindow,
-      modal: false,
-      x: windowInfo.x,
-      y: windowInfo.y,
-      webPreferences: {
-        enableRemoteModule: true,
-        nodeIntegration: true,
-        contextIsolation: false,
-        preload: path.join(__dirname, 'preload.js')
-      }
-    });
-
-    MenuUtils.disableMenus(checkForUpdatesWindow);
-
-    // and load the index.html of the app.
-    checkForUpdatesWindow.loadFile('check_for_updates.html').then();
-
-    checkForUpdatesWindow.on(StringLiterals.RESIZE, (/* event */) => {
-      WindowInfo.saveWindowInfo(windowId, checkForUpdatesWindow);
-    });
-
-    checkForUpdatesWindow.on(StringLiterals.MOVE, (/* event */) => {
-      WindowInfo.saveWindowInfo(windowId, checkForUpdatesWindow);
-    });
+    const checkForUpdatesWindow =
+        createModalWindow('check_for_updates', 'check_for_updates.html');
 
     checkForUpdatesWindow.on(StringLiterals.CLOSE, () => {
       checkForUpdatesEnabled = true;
@@ -301,8 +272,12 @@ function createModalWindow(windowId, fileName) {
   let window = new BrowserWindow({
     width: windowInfo.width,
     height: windowInfo.height,
+    parent: BrowserWindow.getFocusedWindow(),
+    modal: true,
     x: windowInfo.x,
     y: windowInfo.y,
+    minimizable: false,
+    maximizable: true,
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
@@ -352,40 +327,7 @@ function visitEricBT() {
 }
 
 function about() {
-  const windowId = 'about';
-
-  const windowInfo = WindowInfo.loadWindowInfo(windowId);
-
-  const aboutWindow = new BrowserWindow({
-    title: `About ${StringLiterals.APP_NAME}`,
-    width: windowInfo.width,
-    height: windowInfo.height,
-    parent: mainWindow,
-    modal: true,
-    x: windowInfo.x,
-    y: windowInfo.y,
-    webPreferences: {
-      enableRemoteModule: true,
-      nodeIntegration: true,
-      contextIsolation: false,
-      preload: path.join(__dirname, 'preload.js')
-    }
-  });
-
-  remote.enable(aboutWindow.webContents);
-
-  MenuUtils.disableMenus(aboutWindow);
-
-  // and load the index.html of the app.
-  aboutWindow.loadFile('about.html').then();
-
-  aboutWindow.on(StringLiterals.RESIZE, (/* event */) => {
-    WindowInfo.saveWindowInfo(windowId, aboutWindow);
-  });
-
-  aboutWindow.on(StringLiterals.MOVE, (/* event */) => {
-    WindowInfo.saveWindowInfo(windowId, aboutWindow);
-  });
+  createModalWindow('about', 'about.html');
 }
 
 function rejectLicenseTerms() {
@@ -396,7 +338,7 @@ function rejectLicenseTerms() {
     buttons: Constants.OK
   };
 
-  dialog.showMessageBoxSync(options);
+  dialog.showMessageBoxSync(BrowserWindow.getFocusedWindow(), options);
 
   Files.saveLicenseTerms({userAccepted: false});
 

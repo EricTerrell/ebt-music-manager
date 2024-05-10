@@ -1032,7 +1032,7 @@ function wireUpUI() {
     const licenseTermsData = Files.getLicenseTerms();
 
     if (!licenseTermsData.userAccepted) {
-        const licenseTermsWindow = WindowUtils.createWindow('license_terms');
+        const licenseTermsWindow = WindowUtils.createWindow('license_terms', true);
 
         // https://github.com/electron/remote/pull/72#issuecomment-924933800
         remote.require("@electron/remote/main").enable(licenseTermsWindow.webContents)
