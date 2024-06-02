@@ -1,6 +1,6 @@
 /*
   EBT Music Manager
-  (C) Copyright 2023, Eric Bergman-Terrell
+  (C) Copyright 2024, Eric Bergman-Terrell
 
   This file is part of EBT Music Manager.
 
@@ -33,7 +33,7 @@ const obsoleteVersion = document.querySelector('#obsolete_version');
 wireUpUI();
 
 function wireUpUI() {
-    document.querySelector('#app_and_version').innerText = `${AppInfo.getInfo.name} version ${AppInfo.getInfo.version}`;
+    document.querySelector('#app_and_version').innerText = `${StringLiterals.APP_NAME} version ${AppInfo.getInfo.version}`;
 
     closeButton.addEventListener(StringLiterals.CLICK, () => {
         window.close();

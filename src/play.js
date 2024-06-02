@@ -1,6 +1,6 @@
 /*
   EBT Music Manager
-  (C) Copyright 2023, Eric Bergman-Terrell
+  (C) Copyright 2024, Eric Bergman-Terrell
 
   This file is part of EBT Music Manager.
 
@@ -68,8 +68,8 @@ function wireUpUI() {
         'persistenceMode': 'local',
         'persistence': true,
         'layout': 'fitDataTable',
-        'selectable': 1,
-        'movableRows': true,
+        selectableRows: 1,
+        'movableRows': false,
         headerVisible: true,
         data: tracks,
         dataTree: false,
