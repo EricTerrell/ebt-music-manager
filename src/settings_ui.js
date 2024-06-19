@@ -75,20 +75,9 @@ function wireUpUI() {
         }
     ];
 
-    audioFileTypeActionsTable = new Tabulator('#audio-file-type-actions', {
-        index: 'fileType',
-        layout: 'fitColumns',
-        'persistenceID': 'file-type-actions-grid',
-        'persistenceMode': 'local',
-        'persistence': true,
-        headerVisible: true,
-        selectableRows: 1,
-        data: settings.audioFileTypeActions,
-        dataTree: false,
-        columns: columns
-    });
+    loadActions(settings.audioFileTypeActions);
 
-    async function submit() {
+    async function submit(close) {
         settings.sourceFolder = sourceFolderValue.innerHTML;
         settings.targetFolder = targetFolderValue.innerHTML;
         settings.ffmpegPath = ffmpegPathValue.innerHTML;
@@ -112,19 +101,68 @@ function wireUpUI() {
             settings.audioFileTypeActions.push(item);
         });
 
+        if (settings.targetFolder.length > 0) {
+            if (settings.perOutputFolderSettings === undefined) {
+                settings.perOutputFolderSettings = {};
+            }
+
+            let outputFolderSettings = settings.perOutputFolderSettings[settings.targetFolder];
+
+            if (outputFolderSettings === undefined) {
+                settings.perOutputFolderSettings[settings.targetFolder] = {};
+            }
+
+            outputFolderSettings = settings.perOutputFolderSettings[settings.targetFolder];
+
+            outputFolderSettings.sourceFolder = settings.sourceFolder;
+            outputFolderSettings.bitRate = settings.bitRate;
+            outputFolderSettings.concurrency = settings.concurrency;
+            outputFolderSettings.audioFileTypeActions = settings.audioFileTypeActions;
+        }
+
         Files.saveSettings(settings);
 
-        await ipcRenderer.invoke(StringLiterals.NOTIFY_SETTINGS_CHANGED).then(() => {
-            console.log(`sent "${StringLiterals.NOTIFY_SETTINGS_CHANGED}" notification`);
-        })
+        if (close) {
+            await ipcRenderer.invoke(StringLiterals.NOTIFY_SETTINGS_CHANGED).then(() => {
+                console.log(`sent "${StringLiterals.NOTIFY_SETTINGS_CHANGED}" notification`);
+            })
 
-        window.close();
+            window.close();
+        }
+    }
+
+    function updatePerOutputFolderSettings() {
+        const perOutputFolderSettings = settings.perOutputFolderSettings[targetFolderValue.innerHTML];
+
+        if (perOutputFolderSettings !== undefined) {
+            sourceFolderValue.innerHTML = perOutputFolderSettings.sourceFolder;
+            bitRate.value = perOutputFolderSettings.bitRate;
+            concurrency.value = perOutputFolderSettings.concurrency;
+
+            loadActions(perOutputFolderSettings.audioFileTypeActions);
+        }
+    }
+
+    function loadActions(audioFileTypeActions) {
+        audioFileTypeActionsTable = new Tabulator('#audio-file-type-actions', {
+            index: 'fileType',
+            layout: 'fitColumns',
+            'persistenceID': 'file-type-actions-grid',
+            'persistenceMode': 'local',
+            'persistence': true,
+            headerVisible: true,
+            selectableRows: 1,
+            data: audioFileTypeActions,
+            dataTree: false,
+            columns: columns
+        });
+
     }
 
     const okButton = document.querySelector('#ok');
 
     okButton.addEventListener(StringLiterals.CLICK, async () => {
-        await submit();
+        await submit(true);
     });
 
     const cancelButton = document.querySelector('#cancel');
@@ -133,13 +171,19 @@ function wireUpUI() {
         window.close();
     });
 
+    const applyButton = document.querySelector('#apply');
+
+    applyButton.addEventListener(StringLiterals.CLICK, async () => {
+        await submit(false);
+    });
+
     document.addEventListener(StringLiterals.KEYDOWN, (event) => {
         console.log('KEYDOWN');
 
         if (event.key === StringLiterals.ESCAPE) {
             window.close();
         } else if (event.key === StringLiterals.ENTER && !okButton.disabled) {
-            submit().then();
+            submit(true).then();
         }
     });
 
@@ -165,6 +209,8 @@ function wireUpUI() {
         }).then(result => {
             if (!result.canceled) {
                 targetFolderValue.innerHTML = result.filePaths[0];
+
+                updatePerOutputFolderSettings();
             }
         });
     });

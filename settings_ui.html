@@ -20,22 +20,6 @@
     </thead>
     <tbody>
     <tr>
-        <td>Source Folder</td>
-        <td><span id="source-folder-value"></span></td>
-        <td>Folder containing original copies of playlists and full-fidelity audio files</td>
-        <td>
-            <button id="source-folder">Change...</button>
-        </td>
-    </tr>
-    <tr>
-        <td>Target Folder</td>
-        <td><span id="target-folder-value"></span></td>
-        <td>Folder that will be filled with playlists and transcoded audio files</td>
-        <td>
-            <button id="target-folder">Change...</button>
-        </td>
-    </tr>
-    <tr>
         <td>ffmpeg Path</td>
         <td><span id="ffmpeg-value"></span></td>
         <td>This program uses the <a href="https://ffmpeg.org/" class="link">ffmpeg</a> app for transcoding and metadata editing. You must install ffmpeg and specify the path to the ffmpeg.exe file.</td>
@@ -44,7 +28,30 @@
         </td>
     </tr>
     <tr>
-        <td><label for="bit-rate">Bit Rate</label></td>
+        <td><label for="check_for_updates">Check for Updates</label></td>
+        <td>
+            <input type="checkbox" id="check_for_updates"/>
+        </td>
+        <td>Automatically check for updated app version when launched</td>
+    </tr>
+    <tr class="per-target-items">
+        <td>Target Folder</td>
+        <td><span id="target-folder-value"></span></td>
+        <td>Folder that will be filled with playlists and transcoded audio files<br/><br/>Each Target Folder has its own Source Folder, Bit Rate, Concurrency, and Sync Actions</td>
+        <td>
+            <button id="target-folder">Change...</button>
+        </td>
+    </tr>
+    <tr class="per-target-items">
+        <td class="indent-per-target-items">Source Folder</td>
+        <td><span id="source-folder-value"></span></td>
+        <td>Folder containing original copies of playlists and full-fidelity audio files</td>
+        <td>
+            <button id="source-folder">Change...</button>
+        </td>
+    </tr>
+    <tr class="per-target-items">
+        <td class="indent-per-target-items"><label for="bit-rate">Bit Rate</label></td>
         <td>
             <select id="bit-rate">
                 <option value='96k'>Fair Quality: 96k</option>
@@ -55,8 +62,8 @@
         </td>
         <td>Determines quality of transcoded audio files. Larger is better.</td>
     </tr>
-    <tr>
-        <td><label for="concurrency">Concurrency</label></td>
+    <tr class="per-target-items">
+        <td class="indent-per-target-items"><label for="concurrency">Concurrency</label></td>
         <td>
             <select id="concurrency">
                 <option value='1'>1 (slowest)</option>
@@ -68,26 +75,29 @@
             </select>
         </td>
         <td>
-            Specifies how many transcoding operations will be done in parallel. Larger values tend to result in faster transcoding, depending on your CPU and disc speed.
+            Specifies how many transcoding operations will be done in parallel. Larger values tend to result in faster transcoding, depending on your CPU and disc speed
         </td>
     </tr>
     <tr>
-        <td><label for="check_for_updates">Check for Updates</label></td>
-        <td>
-            <input type="checkbox" id="check_for_updates"/>
+        <td class="indent-per-target-items">
+            <label for="audio-file-type-actions" id="table-label">Sync Actions:</label>
         </td>
-        <td>Automatically check for updated app version.</td>
+
+        <td class="per-target-items">
+            <div id="audio-file-type-actions"></div>
+        </td>
+
+        <td class="per-target-items">
+            Specifies whether to convert a source audio file to another format (for instance, convert a .flac file to .mp3), or simply copy the source audio file unchanged
+        </td>
     </tr>
     </tbody>
 </table>
 
-<label for="audio-file-type-actions" id="table-label">Sync Actions:</label>
-
-<div id="audio-file-type-actions"></div>
-
 <div id="buttons">
     <button id="ok">OK</button>
     <button id="cancel">Cancel</button>
+    <button id="apply">Apply</button>
 </div>
 </body>
 <script src="src/settings_ui.js"></script>

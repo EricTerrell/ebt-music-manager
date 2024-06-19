@@ -22,3 +22,15 @@ th {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
+
+.indent-per-target-items, .per-target-items {
+    background: #eeeeee;
+}
+
+.indent-per-target-items {
+    padding-left: 2em;
+}
+
+td {
+    padding: 0.15em;
+}
