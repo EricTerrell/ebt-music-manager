@@ -23,8 +23,8 @@
   },
   "keywords": [],
   "devDependencies": {
-    "electron": "^31.0.1",
-    "@electron/packager": "^18.3.2",
+    "electron": "^31.0.2",
+    "@electron/packager": "^18.3.3",
     "chai": "^4.4.1",
     "mocha": "^10.4.0",
     "nyc": "^15.1.0",

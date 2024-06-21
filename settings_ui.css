@@ -23,7 +23,7 @@ th {
     margin-bottom: 0.5em;
 }
 
-.indent-per-target-items, .per-target-items {
+.indent-per-target-items, .per-target-items, #apply-button-hint {
     background: #eeeeee;
 }
 
@@ -31,6 +31,10 @@ th {
     padding-left: 2em;
 }
 
-td {
+td, #apply-button-hint {
     padding: 0.15em;
+}
+
+#apply-button-hint {
+    border: black solid 1px;
 }
