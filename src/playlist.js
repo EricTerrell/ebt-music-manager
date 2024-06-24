@@ -31,6 +31,7 @@ const DialogBoxUtils = require('./lib/dialogBoxUtils');
 const Constants = require('./lib/constants');
 const DataTableUtils = require('./lib/dataTableUtils');
 const Filter = require('./lib/filter');
+const Audits = require('./lib/audits');
 
 const Tabulator = require("tabulator-tables");
 
@@ -114,19 +115,72 @@ function wireUpUI() {
         itemCount.innerHTML = `(${newCount.toLocaleString()} tracks)`;
     }
 
+    function playlistTracksOutOfOrder(playlistTracks) {
+        const sequence = [];
+
+        playlistTracks.map(track => {
+            const audioFilePath = track.name;
+            const trackMetadata = metadata.audioFilePathToMetadata[audioFilePath];
+
+            sequence.push({
+                discNumber: trackMetadata?.common?.disk?.no,
+                trackNumber: trackMetadata?.common?.track?.no
+            })
+        });
+
+        const originalSequence = [...sequence];
+        const sortedSequence = originalSequence.slice().sort(Audits.compareSequence);
+
+        let outOfOrder = false;
+
+        for (let i = 0; i < originalSequence.length; i++) {
+            if (originalSequence[i].discNumber !== sortedSequence[i].discNumber ||
+                originalSequence[i].trackNumber !== sortedSequence[i].trackNumber) {
+                outOfOrder = true;
+                break;
+            }
+        }
+
+        return outOfOrder;
+    }
+
     function saveAndClose(newPlaylistPath) {
         const playlistTracks = DataTableUtils.getRowsInDisplayedOrder(playlistTracksGrid)
             .map(row => row.getData());
 
-        newPlaylistPath = PlaylistCreator.write(newPlaylistPath, playlistTracks);
+        const outOfOrder = playlistTracksOutOfOrder(playlistTracks);
 
-        // Send cancel notification to main process.
-        ipcRenderer.invoke(StringLiterals.UPSERT_PLAYLIST, newPlaylistPath)
-            .then(() => {
-                console.log(`playlist: sent "ADDED_PLAYLIST" notification ("${newPlaylistPath}")`);
-            });
+        const options = {
+            type: StringLiterals.DIALOG_QUESTION,
+            title: `Tracks Are Out of Order`,
+            message: `One or more tracks are not in the order specified by track metadata. Save anyway?`,
+            buttons: Constants.YES_NO_CANCEL,
+            defaultId: 0,
+            cancelId: 2,
+            icon: './resources/question_mark.png'
+        };
 
-        window.close();
+        let writePlaylist = true;
+
+        if (outOfOrder) {
+            const response = dialog.showMessageBoxSync(remote.getCurrentWindow(), options);
+
+            if (response !== 0) {
+                writePlaylist = false;
+            }
+        }
+
+        if (writePlaylist) {
+            newPlaylistPath = PlaylistCreator.write(newPlaylistPath, playlistTracks);
+
+            // Send cancel notification to main process.
+            ipcRenderer.invoke(StringLiterals.UPSERT_PLAYLIST, newPlaylistPath)
+                .then(() => {
+                    console.log(`playlist: sent "ADDED_PLAYLIST" notification ("${newPlaylistPath}")`);
+                });
+
+            window.close();
+        }
     }
 
     function updatePlaylistTracks(rows = undefined) {
@@ -245,9 +299,7 @@ function wireUpUI() {
         playlistTracksGrid = new Tabulator('#playlist-tracks-grid', {
             initialSort: [ { column: StringLiterals.COLUMN_SEQUENCE, dir: StringLiterals.GRID_SORT_ASCENDING } ],
             index: 'name',
-            'persistenceID': 'playlist-tracks-grid',
-            'persistenceMode': 'local',
-            'persistence': true,
+            'persistence': false,
             'layout': 'fitDataTable',
             selectableRows: 1,
             'movableRows': true,
