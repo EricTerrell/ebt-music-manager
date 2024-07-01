@@ -428,6 +428,17 @@ function wireUpUI() {
                 {formatter: printIconDelete, headerSort: false, width: 30, cellClick: function(e, cell) { deletePlaylist(e, cell); }}
             );
 
+            if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS) {
+                const changed =
+                    {title: "Changed", field: "changed", width:100, responsive: 0, 'frozen': true, formatter:"tickCross",
+                        formatterParams: {
+                            'allowEmpty': true
+                        }
+                    };
+
+                columns.unshift(changed);
+            }
+
             const sync = {
                 title: "Sync", field: "sync", width: 100, responsive: 0, 'frozen': true, editor: "tickCross",
                 cellEdited: syncStatusChanged, formatter: "tickCross",
@@ -693,9 +704,34 @@ function wireUpUI() {
         SyncStatus.save(syncStatus);
     }
 
-    function playlistCellEdited() {
-        savePlaylistEditsButton.disabled = false;
-        undoPlaylistEditsButton.disabled = false;
+    function playlistCellEdited(cell) {
+        console.log(`playlistCellEdited: name: "${cell._cell.row.data.name}" cell name: "${cell._cell.column.definition.field}" value: "${cell._cell.value}" old value: ${cell._cell.oldValue}`);
+
+        let rowData = cell.getRow().getData();
+        const field = cell.getColumn().getField();
+
+        if (field === 'displayName') {
+            if (playlistGridHasChanges()) {
+                rowData.changed = true;
+            } else {
+                rowData.changed = undefined;
+            }
+
+            savePlaylistEditsButton.disabled = !rowData.changed;
+            undoPlaylistEditsButton.disabled = !rowData.changed;
+        }
+
+        cell.getTable().updateData([rowData]);
+    }
+
+    function playlistGridHasChanges() {
+        for (const editedCell of hierarchyTable.getEditedCells()) {
+            if (editedCell._cell.value !== editedCell._cell.initialValue) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function savePlaylistChanges() {

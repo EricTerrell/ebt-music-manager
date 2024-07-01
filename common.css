@@ -2,3 +2,7 @@
     -webkit-user-select:none;
     font-family: sans-serif;
 }
+
+.tabulator-cell, .tabulator-editing {
+    font-family: "Lucida Sans Unicode", sans-serif;
+}

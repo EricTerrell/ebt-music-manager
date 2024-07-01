@@ -1,6 +1,6 @@
 {
   "name": "ebt-music-manager",
-  "version": "1.0.49",
+  "version": "1.0.50",
   "description": "Edit audio file metadata and transcode audio files",
   "main": "src/main.js",
   "scripts": {
@@ -23,10 +23,10 @@
   },
   "keywords": [],
   "devDependencies": {
-    "electron": "^31.0.2",
+    "electron": "^31.1.0",
     "@electron/packager": "^18.3.3",
     "chai": "^4.4.1",
-    "mocha": "^10.4.0",
+    "mocha": "^10.5.2",
     "nyc": "^15.1.0",
     "sinon": "^18.0.0"
   },
