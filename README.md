@@ -18,7 +18,7 @@ EBT Music Manager is built on the [`Electron`](https://github.com/electron/elect
 
 EBT Music Manager
 
-&#169; Copyright 2024, [`Eric Bergman-Terrell`](https://www.ericbt.com)
+&#169; Copyright 2025, [`Eric Bergman-Terrell`](https://www.ericbt.com)
 
 # Screenshots
 

@@ -1,16 +1,12 @@
 #hierarchy-grid {
     margin-top: 1em;
     width: 100%;
-    height: 20em;
+    height: 25em;
 }
 
 #tracks-grid {
     width: 100%;
-    height: calc(100vh - 33.5em);
-}
-
-#buttons {
-    margin-top: 1em;
+    height: calc(100vh - 36em);
 }
 
 #editing-header {
@@ -44,10 +40,6 @@
     width: calc(100vw - 70em);
 }
 
-#add-to-playlist, #play, #reorder-tracks, #delete-track-references, #sync-all-playlists-albums, #sync-all-tracks {
+#add-to-playlist, #play, #reorder-tracks, #delete-track-references, #sync-all-playlists-albums, #sync-all-tracks, #scan, #settings, #log-file {
     margin-left: 1em;
-}
-
-#log-file {
-    margin-left: 2.5em;
 }
