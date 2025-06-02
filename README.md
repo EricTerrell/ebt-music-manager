@@ -10,7 +10,7 @@ your music to a folder, which can be copied to mobile devices. The sync process:
 
 Users can customize the audio file transcoding process.
 
-EBT Music Manager runs on 64-bit Windows and 64-bit Linux. EBT Music Manager is open source.
+EBT Music Manager runs on Windows (Intel/AMD 64-bit) and Linux (Intel/AMD 64-bit, ARM 64-bit). EBT Music Manager is open source.
 
 EBT Music Manager is built on the [`Electron`](https://github.com/electron/electron) framework.
 
