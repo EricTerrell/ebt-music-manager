@@ -261,8 +261,10 @@ function createMainWindow() {
 
   createMenus(mainWindow);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  // Open the DevTools if in debug mode.
+  if (process.env["DEBUG"] === "1") {
+    mainWindow.webContents.openDevTools();
+  }
 }
 
 function createModalWindow(windowId, fileName) {
