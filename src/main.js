@@ -271,6 +271,8 @@ function createModalWindow(windowId, fileName) {
   // Create the browser window.
   const windowInfo = WindowInfo.loadWindowInfo(windowId);
 
+  console.log(`creating window id: ${windowId} fileName: "${fileName}"`);
+
   let window = new BrowserWindow({
     width: windowInfo.width,
     height: windowInfo.height,
@@ -304,6 +306,10 @@ function createModalWindow(windowId, fileName) {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
+
+    console.log(`destroying window id: ${windowId} fileName: "${fileName}"`);
+    window.destroy();
+
     window = null
   });
 
@@ -373,7 +379,6 @@ function busy(busy, message) {
   }
 }
 
-
 ipcMain.handle(StringLiterals.BUSY, async (event, data) => {
   busy(data.displayDialog, data.message);
 });
@@ -403,6 +408,8 @@ ipcMain.handle(StringLiterals.UPSERT_PLAYLIST, async (event, data) => {
 });
 
 function createBusyWindow(message) {
+  console.log('creating busyWindow');
+
   const windowId = 'busy';
 
   const windowInfo = WindowInfo.loadWindowInfo(windowId);
@@ -463,6 +470,9 @@ function createBusyWindow(message) {
       } catch (error) {
         console.error(error);
       }
+
+      console.log('destroying busyWindow');
+      busyWindow.destroy();
     }
   });
 

@@ -97,7 +97,9 @@ function wireUpUI() {
             player.src = rows[trackIndex].name;
             player.play();
 
-            setTimeout(() => {
+            const timerID = setTimeout(() => {
+                clearTimeout(timerID);
+
                 tracksGrid.deselectRow();
                 tracksGrid.selectRow(rows[trackIndex].name);
 
@@ -121,7 +123,9 @@ function wireUpUI() {
         player.src = row.getData().name;
         player.play();
 
-        setTimeout(() => {
+        const timerID = setTimeout(() => {
+            clearTimeout(timerID);
+
             const selectedRows = tracksGrid.getSelectedRows();
 
             const name = selectedRows[0].getData().name;
@@ -157,7 +161,9 @@ function wireUpUI() {
         player.src = rows[trackIndex].name;
         player.play();
 
-        setTimeout(() => {
+        const timerID = setTimeout(() => {
+            clearTimeout(timerID);
+
             tracksGrid.deselectRow();
             tracksGrid.selectRow(rows[trackIndex].name);
 

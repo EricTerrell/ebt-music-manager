@@ -113,7 +113,9 @@ function wireUpUI() {
 
     // When filter settings are changed, update UI asynchronously (so that user's typing is not disrupted).
     const update = () => {
-        setTimeout(async () => {
+        const timerID = setTimeout(async () => {
+            clearTimeout(timerID);
+
             updateUIForFilterSettings();
         });
     };
@@ -276,8 +278,10 @@ function wireUpUI() {
     saveTracksEditsButton.addEventListener(StringLiterals.CLICK, async () => {
         busy(true, 'Saving changes');
 
-        setTimeout(async () => {
+        const timerID = setTimeout(async () => {
             function finish() {
+                clearTimeout(timerID);
+
                 refresh(getSelectedHierarchyRowData(), false);
 
                 busy(false);
@@ -371,12 +375,14 @@ function wireUpUI() {
 
             SyncStatus.deleteObsoleteData(syncStatus, metadata);
 
-            const sync = new Sync(settings.sourceFolder, settings.targetFolder, syncStatus);
+            const timerID = setTimeout(async () => {
+                const sync = new Sync(settings.sourceFolder, settings.targetFolder, syncStatus);
 
-            setTimeout(async () => {
-                    sync
+                sync
                     .sync(metadata !== undefined ? metadata.audioFilePathToMetadata : undefined)
                     .then(updatedMetadata => {
+                        clearTimeout(timerID);
+
                         console.log('Sync.sync completed successfully');
 
                         metadata = updatedMetadata;
@@ -386,6 +392,7 @@ function wireUpUI() {
 
                         processingComplete();
                     }, reason => {
+                        clearTimeout(timerID);
                         console.error(`Sync.sync interrupted reason: ${reason}`);
 
                         busy(false);
@@ -453,38 +460,42 @@ function wireUpUI() {
             columns.unshift(sync);
         }
 
-        hierarchyTable = new Tabulator("#hierarchy-grid", {
-            initialSort: [ { column: 'displayName', dir: StringLiterals.GRID_SORT_ASCENDING } ],
-            'index': 'name',
-            'data': tableData,
-            'dataTree': false,
-            'layout': 'fitColumns',
-            'selectableRows': 1,
-            'headerVisible': true,
-            'columns': columns
-        });
+        if (hierarchyTable === undefined) {
+            hierarchyTable = new Tabulator("#hierarchy-grid", {
+                initialSort: [ { column: 'displayName', dir: StringLiterals.GRID_SORT_ASCENDING } ],
+                'index': 'name',
+                'data': tableData,
+                'dataTree': false,
+                'layout': 'fitColumns',
+                'selectableRows': 1,
+                'headerVisible': true,
+                'columns': columns
+            });
+
+            hierarchyTable.on(StringLiterals.ROW_CLICK, function(e, row) {
+                loadTable(row.getData());
+            });
+        } else {
+            hierarchyTable.clearData();
+            hierarchyTable.setColumns(columns);
+            hierarchyTable.setData(tableData);
+        }
 
         syncAllPlaylistsAlbumsButton.disabled = syncNoPlaylistsAlbumsButton.disabled =
             tableData === undefined || tableData.length === 0;
 
-        hierarchyTable.on(StringLiterals.ROW_CLICK, function(e, row) {
-            loadTable(row.getData());
-        });
+        if (selectedItemType !== StringLiterals.ITEM_TYPE_TRACKS) {
+            itemCount.innerHTML = `(${tableData.length.toLocaleString()} items)`;
+        }
 
-        hierarchyTable.on(StringLiterals.TABLE_BUILT, function() {
-            if (selectedItemType !== StringLiterals.ITEM_TYPE_TRACKS) {
-                itemCount.innerHTML = `(${tableData.length.toLocaleString()} items)`;
+        if (selectedHierarchyRowData !== undefined) {
+            const searchRows = hierarchyTable.searchRows("name", "=", selectedHierarchyRowData.name);
+
+            if (searchRows.length === 1) {
+                hierarchyTable.scrollToRow(searchRows[0], 'top', false);
+                hierarchyTable.selectRow(searchRows[0].getData().name);
             }
-
-            if (selectedHierarchyRowData !== undefined) {
-                const searchRows = hierarchyTable.searchRows("name", "=", selectedHierarchyRowData.name);
-
-                if (searchRows.length === 1) {
-                    hierarchyTable.scrollToRow(searchRows[0], 'top', false);
-                    hierarchyTable.selectRow(searchRows[0].getData().name);
-                }
-            }
-        });
+        }
 
         if (selectedItemType === StringLiterals.ITEM_TYPE_TRACKS) {
             loadTable({ 'type': StringLiterals.TYPE_ALL_TRACKS });
@@ -1091,8 +1102,10 @@ function wireUpUI() {
         editingHeader.textContent = StringLiterals.EMPTY_STRING;
 
         // Run the rest of the scan later so that Scan button is visibly disabled immediately.
-        setTimeout(() => {
+        const timerID = setTimeout(() => {
             function finish() {
+                clearTimeout(timerID);
+
                 updateTables(selectedItemType, selectedHierarchyRowData);
 
                 busy(false);

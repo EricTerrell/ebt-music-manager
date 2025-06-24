@@ -69,7 +69,9 @@ function wireUpUI() {
 
     // When filter settings are changed, update UI asynchronously (so that user's typing is not disrupted).
     const update = () => {
-        setTimeout(async () => {
+        const timerID = setTimeout(async () => {
+            clearTimeout(timerID);
+
             updateUIForFilterSettings();
         });
     };
