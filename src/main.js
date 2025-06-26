@@ -85,8 +85,6 @@ function wireUpUI() {
         createMainWindow();
       }
     });
-
-    app.commandLine.appendSwitch('remote-debugging-port', '9222');
   }
 
   ipcMain.handle(StringLiterals.CHECK_FOR_UPDATES, async () => {
@@ -260,11 +258,6 @@ function createMainWindow() {
   });
 
   createMenus(mainWindow);
-
-  // Open the DevTools if in debug mode.
-  if (process.env["DEBUG"] === "1") {
-    mainWindow.webContents.openDevTools();
-  }
 }
 
 function createModalWindow(windowId, fileName) {
