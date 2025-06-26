@@ -24,7 +24,7 @@
   },
   "keywords": [],
   "devDependencies": {
-    "electron": "^36.5.0",
+    "electron": "^37.1.0",
     "@electron/packager": "^18.3.6",
     "chai": "^4.4.1",
     "mocha": "^10.7.3",
@@ -36,8 +36,8 @@
     "async-promise-pool": "^1.0.6",
     "bootstrap-icons": "^1.9.1",
     "ffmetadata": "^1.7.0",
-    "luxon": "^3.4.4",
+    "luxon": "^3.6.1",
     "music-metadata": "^7.14.0",
-    "tabulator-tables": "^6.2.1"
+    "tabulator-tables": "^6.3.1"
   }
 }
