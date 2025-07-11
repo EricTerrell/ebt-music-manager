@@ -414,7 +414,7 @@ function createBusyWindow(message) {
     x: windowInfo.x,
     y: windowInfo.y,
     parent: mainWindow,
-    modal: false,
+    modal: true,
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
