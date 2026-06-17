@@ -429,22 +429,19 @@ function wireUpUI() {
             {title: 'FullName', field: 'name', 'visible': false},
         ];
 
-        if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ||
-            selectedItemType === StringLiterals.ITEM_TYPE_ALBUMS) {
+        if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS) {
             columns.push(
                 {formatter: printIconDelete, headerSort: false, width: 30, cellClick: function(e, cell) { deletePlaylist(e, cell); }}
             );
 
-            if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS) {
-                const changed =
-                    {title: "Changed", field: "changed", width:100, responsive: 0, 'frozen': true, formatter:"tickCross",
-                        formatterParams: {
-                            'allowEmpty': true
-                        }
-                    };
+            const changed =
+                {title: "Changed", field: "changed", width:100, responsive: 0, 'frozen': true, formatter:"tickCross",
+                    formatterParams: {
+                        'allowEmpty': true
+                    }
+                };
 
-                columns.unshift(changed);
-            }
+            columns.unshift(changed);
 
             const sync = {
                 title: "Sync", field: "sync", width: 100, responsive: 0, 'frozen': true, editor: "tickCross",
