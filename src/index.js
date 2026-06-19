@@ -136,8 +136,8 @@ function wireUpUI() {
         const settings = Files.getSettings();
 
         if ((oldSourceAndTargetFolders.sourceFolderPath !== settings.sourceFolder ||
-             oldSourceAndTargetFolders.targetFolderPath !== settings.targetFolder)
-                && fs.existsSync(settings.targetFolder)) {
+                oldSourceAndTargetFolders.targetFolderPath !== settings.targetFolder)
+            && fs.existsSync(settings.targetFolder)) {
             console.log('reload because source and/or target folder has changed');
 
             oldSourceAndTargetFolders.sourceFolderPath = settings.sourceFolder;
@@ -196,9 +196,9 @@ function wireUpUI() {
         }
 
         ipcRenderer.invoke(StringLiterals.PLAY_UI, {
-                'tracks': tracksTable.getData(),
-                selectedTrack,
-                metadata
+            'tracks': tracksTable.getData(),
+            selectedTrack,
+            metadata
         }).then();
     });
 
@@ -429,19 +429,33 @@ function wireUpUI() {
             {title: 'FullName', field: 'name', 'visible': false},
         ];
 
-        if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS) {
-            columns.push(
-                {formatter: printIconDelete, headerSort: false, width: 30, cellClick: function(e, cell) { deletePlaylist(e, cell); }}
-            );
+        if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ||
+            selectedItemType === StringLiterals.ITEM_TYPE_ALBUMS) {
 
-            const changed =
-                {title: "Changed", field: "changed", width:100, responsive: 0, 'frozen': true, formatter:"tickCross",
-                    formatterParams: {
-                        'allowEmpty': true
+            if (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS) {
+                columns.push(
+                    {
+                        formatter: printIconDelete, headerSort: false, width: 30, cellClick: function (e, cell) {
+                            deletePlaylist(e, cell);
+                        }
                     }
-                };
+                );
 
-            columns.unshift(changed);
+                const changed =
+                    {
+                        title: "Changed",
+                        field: "changed",
+                        width: 100,
+                        responsive: 0,
+                        'frozen': true,
+                        formatter: "tickCross",
+                        formatterParams: {
+                            'allowEmpty': true
+                        }
+                    };
+
+                columns.unshift(changed);
+            }
 
             const sync = {
                 title: "Sync", field: "sync", width: 100, responsive: 0, 'frozen': true, editor: "tickCross",
@@ -540,9 +554,9 @@ function wireUpUI() {
 
                     trackArray = metadata.playlists[rowData.name]
                         .map(p => ({
-                                'audioFilePath': p.audioFilePath,
-                                'metadata': metadata.audioFilePathToMetadata[p.audioFilePath]
-                            }));
+                            'audioFilePath': p.audioFilePath,
+                            'metadata': metadata.audioFilePathToMetadata[p.audioFilePath]
+                        }));
                 }
                     break;
 
@@ -1015,8 +1029,8 @@ function wireUpUI() {
         const selectedItemType = getSelectedItemType();
 
         let canMoveRows = tracksTable !== undefined && tracksTable.getRows().length > 1 &&
-                (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ||
-                 selectedItemType === StringLiterals.ITEM_TYPE_ALBUMS);
+            (selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ||
+                selectedItemType === StringLiterals.ITEM_TYPE_ALBUMS);
 
         // Cannot move rows if the grid is album tracks, and there are multiple disc numbers.
         if (canMoveRows && selectedItemType === StringLiterals.ITEM_TYPE_ALBUMS) {
