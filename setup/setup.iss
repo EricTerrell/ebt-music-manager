@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "EBT Music Manager"
-#define MyAppVersion "1.0.59"
+#define MyAppVersion "1.0.60"
 #define MyAppPublisher "Eric Bergman-Terrell"
 #define MyAppURL "https://www.ericbt.com/"
 #define MyAppExeName "ebt-music-manager.exe"

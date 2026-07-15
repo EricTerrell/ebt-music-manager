@@ -253,7 +253,7 @@ function wireUpUI() {
         const ext = `.${StringLiterals.PLAYLIST_FILE_TYPE}`;
 
         const data = Filter
-            .filterPlaylists(metadata, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive))
+            .filterPlaylists(metadata, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive, false))
             .map(playlist => {
                 return {
                     name: path.basename(playlist, ext),

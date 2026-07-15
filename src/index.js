@@ -413,7 +413,7 @@ function wireUpUI() {
         let tableData = [];
 
         if (metadata !== undefined) {
-            tableData = DataTableUtils.toTableData(metadata, selectedItemType, syncStatus, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive));
+            tableData = DataTableUtils.toTableData(metadata, selectedItemType, syncStatus, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive, false));
         }
 
         const editor = selectedItemType === StringLiterals.ITEM_TYPE_PLAYLISTS ?
@@ -544,7 +544,7 @@ function wireUpUI() {
             switch (rowData.type) {
                 case StringLiterals.ITEM_TYPE_ALBUMS: {
                     editingMessage = `Editing Album "${rowData.name}":`;
-                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive))
+                    trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive, true))
                         .sort(DataTableUtils.compareTracks);
                 }
                     break;
@@ -563,7 +563,7 @@ function wireUpUI() {
                 case StringLiterals.TYPE_ALL_TRACKS: {
                     editingMessage = `Editing All Tracks:`;
 
-                    trackArray = loadTracks(() => true, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive))
+                    trackArray = loadTracks(() => true, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive, false))
                         .sort(DataTableUtils.compareTracks);
                 }
                     break;
