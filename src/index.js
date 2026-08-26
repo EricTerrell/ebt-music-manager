@@ -1,6 +1,6 @@
 /*
   EBT Music Manager
-  (C) Copyright 2025, Eric Bergman-Terrell
+  (C) Copyright 2026, Eric Bergman-Terrell
 
   This file is part of EBT Music Manager.
 
@@ -45,6 +45,7 @@ const VersionChecker = require('./lib/versionChecker');
 const FileSystemUtils = require('./lib/fileSystemUtils');
 const LogFile = require('./lib/logFile');
 const SyncStatus = require('./lib/syncStatus');
+const TrackUtils = require('./lib/trackUtils');
 
 let syncStatus = SyncStatus.getDefault();
 
@@ -69,6 +70,8 @@ let tracksTableEntireColumnsUpdated = {};
 let hierarchyTable = undefined;
 
 let metadata = undefined;
+
+let trackPrefix = undefined;
 
 let oldSourceAndTargetFolders = {
     sourceFolderPath: undefined,
@@ -182,6 +185,35 @@ function wireUpUI() {
                 getSelectedHierarchyRowData().displayName : StringLiterals.EMPTY_STRING,
             metadata
         }).then();
+    });
+
+    const removeTitlePrefixesButton = document.querySelector('#remove-title-prefixes');
+
+    removeTitlePrefixesButton.addEventListener(StringLiterals.CLICK, () => {
+        const options = {
+            type: StringLiterals.DIALOG_QUESTION,
+            title: 'Remove prefix?',
+            message: `Remove prefix "${trackPrefix}" from all track titles?`,
+            buttons: Constants.YES_NO_CANCEL,
+            defaultId: 0,
+            cancelId: 2,
+            icon: './resources/question_mark.png'
+        };
+
+        dialog.showMessageBox(remote.getCurrentWindow(), options)
+            .then(response => {
+                if (response.response === 0) {
+                    let updatedData = tracksTable.getData();
+
+                    for (let i = 0; i < updatedData.length; i++) {
+                        updatedData[i].title = updatedData[i].title.substring(trackPrefix.length)
+                        updatedData[i].changed = true;
+                    }
+
+                    tracksTable.updateData(updatedData);
+                    saveTracksEditsButton.disabled = false;
+                }
+            });
     });
 
     const playButton = document.querySelector('#play');
@@ -546,6 +578,8 @@ function wireUpUI() {
                     editingMessage = `Editing Album "${rowData.name}":`;
                     trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive, true))
                         .sort(DataTableUtils.compareTracks);
+
+                    trackPrefix = TrackUtils.prefix(trackArray);
                 }
                     break;
 
@@ -569,6 +603,8 @@ function wireUpUI() {
                     break;
             }
         }
+
+        removeTitlePrefixesButton.disabled = trackPrefix === undefined;
 
         const tableData = DataTableUtils.trackArrayToTableData(trackArray, syncStatus[StringLiterals.ITEM_TYPE_TRACKS]);
 

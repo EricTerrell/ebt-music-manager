@@ -1,6 +1,6 @@
 /*
   EBT Music Manager
-  (C) Copyright 2025, Eric Bergman-Terrell
+  (C) Copyright 2026, Eric Bergman-Terrell
 
   This file is part of EBT Music Manager.
 
