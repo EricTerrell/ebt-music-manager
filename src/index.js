@@ -341,7 +341,11 @@ function wireUpUI() {
     });
 
     undoTracksEditsButton.addEventListener(StringLiterals.CLICK, () => {
-        loadTable({ 'type': StringLiterals.TYPE_ALL_TRACKS });
+        if (getSelectedItemType() === StringLiterals.ITEM_TYPE_TRACKS) {
+            loadTable({ 'type': StringLiterals.TYPE_ALL_TRACKS });
+        } else {
+            loadTable(getSelectedHierarchyRowData());
+        }
 
         undoTracksEditsButton.disabled = true;
         saveTracksEditsButton.disabled = true;
@@ -525,6 +529,8 @@ function wireUpUI() {
             });
 
             hierarchyTable.on(StringLiterals.ROW_DESELECTED, function(row) {
+                editingHeader.textContent = tracksCount.innerHTML = StringLiterals.EMPTY_STRING;
+
                 tracksTable.clearData();
                 checkTrackSelection();
             });
@@ -860,9 +866,11 @@ function wireUpUI() {
         unselectAllTracksButton.disabled = selectedCount === 0 ||
             selectedItemType === StringLiterals.ITEM_TYPE_TRACKS;
 
-        playButton.disabled = syncAllTracksButton.disabled = syncNoTracksButton.disabled =
-            editTrackTitlesButton.disabled = saveTracksEditsButton.disabled =
-                undoTracksEditsButton.disabled = rowCount === 0;
+        if (rowCount === 0) {
+            playButton.disabled = syncAllTracksButton.disabled = syncNoTracksButton.disabled =
+                editTrackTitlesButton.disabled = saveTracksEditsButton.disabled =
+                    undoTracksEditsButton.disabled = true;
+        }
     }
 
     async function saveChanges() {
