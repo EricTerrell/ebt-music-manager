@@ -1,0 +1,12 @@
+#close {
+    margin-top: 0.5em;
+    margin-left: 1em;
+}
+
+#find_what, #replace_with {
+    width: calc(100vw - 10em);
+}
+
+ .no-wrap {
+     white-space: nowrap;
+ }

@@ -114,6 +114,18 @@ function wireUpUI() {
       window.webContents.send(StringLiterals.PLAY_UI, args);
     });
   });
+
+  ipcMain.handle(StringLiterals.EDIT_TRACK_TITLES, (event, args) => {
+    const window = createModalWindow('edit_track_titles', 'edit_track_titles.html');
+
+    window.webContents.once(StringLiterals.DID_FINISH_LOAD, () => {
+      window.webContents.send(StringLiterals.EDIT_TRACK_TITLES_INIT, args);
+    });
+  });
+
+  ipcMain.handle(StringLiterals.SEARCH_AND_REPLACE, (event, args) => {
+    mainWindow.webContents.send(StringLiterals.SEARCH_AND_REPLACE, args);
+  });
 }
 
 function createMenus(window) {

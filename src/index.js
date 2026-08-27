@@ -95,6 +95,8 @@ const syncNoPlaylistsAlbumsButton = document.querySelector('#sync-no-playlists-a
 const syncAllTracksButton = document.querySelector('#sync-all-tracks');
 const syncNoTracksButton = document.querySelector('#sync-no-tracks');
 
+const editTrackTitlesButton = document.querySelector('#edit-track-titles');
+
 let logFile = undefined;
 
 wireUpUI();
@@ -159,6 +161,32 @@ function wireUpUI() {
         refresh(getSelectedHierarchyRowData());
     });
 
+    ipcRenderer.on(StringLiterals.SEARCH_AND_REPLACE, (event, data) => {
+        let updatedData = tracksTable.getData();
+
+        let changesMade = false;
+
+        const regex_flags = data.match_case ? "g" : "gi";
+        let regex = new RegExp(data.find_text, regex_flags);
+
+        for (let i = 0; i < updatedData.length; i++) {
+            let title = updatedData[i].title.replace(regex, data.replace_text);
+
+            if (title !== updatedData[i].title) {
+                updatedData[i].title = title;
+                updatedData[i].changed = true;
+
+                changesMade = true;
+            }
+        }
+
+        if (changesMade) {
+            tracksTable.updateData(updatedData);
+            saveTracksEditsButton.disabled = false;
+            undoTracksEditsButton.disabled = false;
+        }
+    });
+
     const itemCount = document.querySelector('#hierarchy-item-count');
     const tracksCount = document.querySelector('#tracks-count');
 
@@ -187,33 +215,10 @@ function wireUpUI() {
         }).then();
     });
 
-    const removeTitlePrefixesButton = document.querySelector('#remove-title-prefixes');
-
-    removeTitlePrefixesButton.addEventListener(StringLiterals.CLICK, () => {
-        const options = {
-            type: StringLiterals.DIALOG_QUESTION,
-            title: 'Remove prefix?',
-            message: `Remove prefix "${trackPrefix}" from all track titles?`,
-            buttons: Constants.YES_NO_CANCEL,
-            defaultId: 0,
-            cancelId: 2,
-            icon: './resources/question_mark.png'
-        };
-
-        dialog.showMessageBox(remote.getCurrentWindow(), options)
-            .then(response => {
-                if (response.response === 0) {
-                    let updatedData = tracksTable.getData();
-
-                    for (let i = 0; i < updatedData.length; i++) {
-                        updatedData[i].title = updatedData[i].title.substring(trackPrefix.length)
-                        updatedData[i].changed = true;
-                    }
-
-                    tracksTable.updateData(updatedData);
-                    saveTracksEditsButton.disabled = false;
-                }
-            });
+    editTrackTitlesButton.addEventListener(StringLiterals.CLICK, () => {
+        ipcRenderer.invoke(StringLiterals.EDIT_TRACK_TITLES, {
+            'search_text': trackPrefix
+        }).then();
     });
 
     const playButton = document.querySelector('#play');
@@ -515,8 +520,13 @@ function wireUpUI() {
                 'columns': columns
             });
 
-            hierarchyTable.on(StringLiterals.ROW_CLICK, function(e, row) {
+            hierarchyTable.on(StringLiterals.ROW_SELECTED, function(row) {
                 loadTable(row.getData());
+            });
+
+            hierarchyTable.on(StringLiterals.ROW_DESELECTED, function(row) {
+                tracksTable.clearData();
+                checkTrackSelection();
             });
         } else {
             hierarchyTable.clearData();
@@ -562,6 +572,7 @@ function wireUpUI() {
         reorderTracksButton.disabled = true;
         deleteTrackReferencesButton.disabled = true;
         deleteTracksButton.disabled = true;
+        editTrackTitlesButton.disabled = true;
 
         let trackArray = [];
 
@@ -579,7 +590,13 @@ function wireUpUI() {
                     trackArray = loadTracks((x) => x.metadata.common.album === rowData.name, Filter.getFilterSettings(filterCheckbox, filterFieldName, filterOperation, filterText, filterCaseInsensitive, true))
                         .sort(DataTableUtils.compareTracks);
 
-                    trackPrefix = TrackUtils.prefix(trackArray);
+                    if (trackArray.length !== 0) {
+                        trackPrefix = TrackUtils.prefix(trackArray);
+                        editTrackTitlesButton.disabled = false;
+                    } else {
+                        trackPrefix = undefined;
+                        editTrackTitlesButton.disabled = true;
+                    }
                 }
                     break;
 
@@ -603,8 +620,6 @@ function wireUpUI() {
                     break;
             }
         }
-
-        removeTitlePrefixesButton.disabled = trackPrefix === undefined;
 
         const tableData = DataTableUtils.trackArrayToTableData(trackArray, syncStatus[StringLiterals.ITEM_TYPE_TRACKS]);
 
@@ -845,7 +860,9 @@ function wireUpUI() {
         unselectAllTracksButton.disabled = selectedCount === 0 ||
             selectedItemType === StringLiterals.ITEM_TYPE_TRACKS;
 
-        playButton.disabled = syncAllTracksButton.disabled = syncNoTracksButton.disabled = rowCount === 0;
+        playButton.disabled = syncAllTracksButton.disabled = syncNoTracksButton.disabled =
+            editTrackTitlesButton.disabled = saveTracksEditsButton.disabled =
+                undoTracksEditsButton.disabled = rowCount === 0;
     }
 
     async function saveChanges() {

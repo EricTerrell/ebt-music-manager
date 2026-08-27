@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="common.css" rel="stylesheet" type="text/css">
+    <link href="edit_track_titles.css" rel="stylesheet" type="text/css">
+    <title>Search &amp; Replace Track Titles</title>
+</head>
+
+<body>
+<div id="tracks-grid"></div>
+
+<table>
+    <tbody>
+        <tr>
+            <td class="no-wrap"><label for="find_what">Find:</label></td>
+            <td><input id="find_what" type="text"></td>
+        </tr>
+        <tr>
+            <td class="no-wrap"><label for="replace_with">Replace With:</label></td>
+            <td><input id="replace_with" type="text"></td>
+        </tr>
+        <tr>
+            <td>
+                <label for="match_case">Match Case:</label>
+            </td>
+            <td>
+                <input type="checkbox" id="match_case" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div>
+    <button id="replace_all">Replace All</button>
+    <button id="close">Close</button>
+</div>
+
+</body>
+<script src="src/edit_track_titles.js"></script>
+</html>
