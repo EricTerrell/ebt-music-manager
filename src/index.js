@@ -167,7 +167,7 @@ function wireUpUI() {
         let changesMade = false;
 
         const regex_flags = data.match_case ? "g" : "gi";
-        let regex = new RegExp(data.find_text, regex_flags);
+        let regex = new RegExp(RegExp.escape(data.find_text), regex_flags);
 
         for (let i = 0; i < updatedData.length; i++) {
             let title = updatedData[i].title.replace(regex, data.replace_text);
