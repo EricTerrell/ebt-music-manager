@@ -23,6 +23,7 @@ const path = require('path');
 
 const StringLiterals = require('./lib/stringLiterals');
 const Files = require('./lib/files');
+const DialogBoxUtils = require('./lib/dialogBoxUtils');
 
 wireUpUI();
 
@@ -57,4 +58,6 @@ function wireUpUI() {
     closeButton.addEventListener(StringLiterals.CLICK, () => {
         window.close();
     });
+
+    DialogBoxUtils.setupEscapeToClose();
 }
