@@ -40,6 +40,6 @@
     width: calc(100vw - 70em);
 }
 
-#add-to-playlist, #play, #reorder-tracks, #delete-track-references, #sync-all-playlists-albums, #sync-all-tracks, #scan, #settings, #log-file, #remove-title-prefixes {
+#add-to-playlist, #play, #reorder-tracks, #delete-track-references, #sync-all-playlists-albums, #sync-all-tracks, #scan, #settings, #log-file, #edit-track-titles {
     margin-left: 1em;
 }
